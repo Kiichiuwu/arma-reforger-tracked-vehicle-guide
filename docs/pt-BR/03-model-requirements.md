@@ -23,7 +23,7 @@ Regras que a engine verifica ao carregar:
 
 **Orientação e escala** (Blender → Enfusion): modele em metros, frente do veículo para **+Y**, Z para cima e chão em z = 0. O exportador FBX padrão do Blender (forward -Z, up Y) leva o +Y do Blender para o +Z (frente) da Enfusion, e o +X continua sendo o lado direito. Portanto, sufixo `_l` = lado -X e `_r` = lado +X.
 
-**Ossos no Blender:** um armature com um osso raiz que **não** se chame `Scene_Root` (o `.xob` já cria um nó raiz com esse nome; no Leopard ele se chama `v_body`). Cada peça móvel fica com 100% de peso no seu osso, sem misturar pesos.
+**Ossos no Blender:** um armature com um osso raiz que **não** se chame `Scene_Root` (o `.xob` já cria um nó raiz com esse nome; no Leopard ele se chama `v_body`). Cada roda, roda motriz e idler fica com 100% de peso no seu osso, sem misturar pesos.
 
 **Colisores:** malhas `UCX_*` (convexas), com a propriedade personalizada `usage = "Vehicle"`. O material físico de cada colisor é definido no `.xob.meta`. Os materiais de blindagem vanilla são `Common/Materials/Game/Armor/armor_{1..100}mm.gamemat`; o padrão que o importador coloca (`{536BF67B2052B869}material/metal.gamemat`) não existe e gera erro.
 
@@ -33,11 +33,10 @@ Regras que a engine verifica ao carregar:
 | --- | --- | --- |
 | Merge Meshes | desligado | Senão casco, rodas e esteiras viram uma malha só |
 | Export Skinning | ligado | Sem isso os ossos não entram no `.xob` |
-| Export Scene Hierarchy | ligado | Mantém a hierarquia de ossos e pontos |
+| Export Scene Hierarchy | ligado | Mantém a hierarquia de ossos |
 
 No `.meta` isso aparece como `MergeMeshes 0`, `ExportSkinning 1` e `ExportSceneHierarchy 1`.
 
-Uma torre fica num `.xob` separado, preso ao casco por um osso de encaixe (`v_turret_slot`, no centro do anel). A torre tem os próprios ossos: `v_gun_01` no munhão, pontos da tripulação, miras etc.
 
 ---
 

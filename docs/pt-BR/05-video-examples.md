@@ -4,9 +4,9 @@
 
 # Exemplos em vídeo
 
-Estes exemplos vêm de um teste de 2 min 13 s do mod do Leopard 2A7, gravado no Workbench 1.8.0.13, na pista do aeródromo do mapa Arland. O modelo ainda está sem textura. Cada exemplo tem um GIF curto (ou uma foto) e o momento exato do vídeo original.
+Estes exemplos vêm de um teste de 2 min 13 s do mod do Leopard 2A7, gravado no Workbench 1.8.0.13, na pista do aeródromo do mapa Arland. Cada exemplo tem um GIF curto (ou uma foto) e o momento exato do vídeo original.
 
-**Como ler o painel.** No canto inferior esquerdo ficam três mostradores: o velocímetro à esquerda (km/h, até 120), o conta-giros no meio (rpm × 1000, até 3) e o combustível à direita.
+**Como ler o painel.** No canto inferior esquerdo ficam os dois mostradores usados aqui: o velocímetro à esquerda (km/h, até 120) e o conta-giros no meio (rpm × 1000, até 3).
 
 Todos os momentos de ré, giro no lugar, grama e curva foram conferidos quadro a quadro contra o chão (marcas da pista, rachaduras, grama), não contra a câmera, que o jogador gira livremente.
 
@@ -14,26 +14,14 @@ Todos os momentos de ré, giro no lugar, grama e curva foram conferidos quadro a
 
 | Exemplo | Tempo no vídeo | Ilustra |
 | --- | --- | --- |
-| [Entrando como motorista](#enter-driver) | 3,75–8,25 s | [Passo a passo do zero](04-from-scratch.md) |
 | [Arrancada para frente](#accelerate-forward) | 14,75–19,25 s | [Afinação com dados reais](10-tuning.md) |
 | [Ré por script](#scripted-reverse) | 27,75–31,75 s | [Bugs e limitações](09-bugs.md) |
 | [Giro no lugar](#pivot-in-place) | 37–42 s | [Como funciona por dentro](08-internals.md) |
 | [Ré com esterçamento](#reverse-steering) | 45,25–50,25 s | [Bugs e limitações](09-bugs.md) |
-| [Modelo sem textura e tripulante atravessando a torre](#crew-clipping) | 58 s | [Bugs e limitações](09-bugs.md) |
 | [Corrida longa pela pista](#runway-run) | 73,5–77,75 s | [Afinação com dados reais](10-tuning.md) |
 | [Esterçamento em movimento](#steer-while-moving) | 77,5–81 s | [Como funciona por dentro](08-internals.md) |
 | [Saindo do asfalto para a grama](#offroad-grass) | 84,75–88,75 s | [Referência de atributos](07-attribute-reference.md) |
 | [Rodas e esteiras sem animação](#static-tracks) | 110,6–113,6 s | [Bugs e limitações](09-bugs.md) |
-
-<a id="enter-driver"></a>
-
-## Entrando como motorista
-
-![Entrando como motorista](../images/enter-driver.gif)
-
-Close do modelo Leopard 2A7 branco, sem textura, com o prompt 'Get in: Driver' na frente direita do casco. Não há animação de embarque: a visão corta direto para o assento do motorista em primeira pessoa, depois aparecem os medidores do veículo e a câmera passa para terceira pessoa.
-
-*Vídeo: 3,75–8,25 s · [foto em tamanho cheio](../images/enter-driver.jpg) (5 s) · Ilustra: [Passo a passo do zero](04-from-scratch.md)*
 
 <a id="accelerate-forward"></a>
 
@@ -41,7 +29,7 @@ Close do modelo Leopard 2A7 branco, sem textura, com o prompt 'Get in: Driver' n
 
 ![Arrancada para frente](../images/accelerate-forward.gif)
 
-Com o motor em marcha lenta, o tanque sai da imobilidade e anda para frente pela pista (W), deixando fumaça de escapamento para trás. O velocímetro (medidor da esquerda) marca cerca de 13 km/h neste quadro; a arrancada chega a cerca de 30 km/h por volta de 22,5 s, com trocas de marcha visíveis no ponteiro de RPM.
+Com o motor em marcha lenta, o tanque sai da imobilidade e anda para frente pela pista (W). O velocímetro (medidor da esquerda) marca cerca de 13 km/h neste quadro; a arrancada chega a cerca de 30 km/h por volta de 22,5 s, com trocas de marcha visíveis no ponteiro de RPM.
 
 *Vídeo: 14,75–19,25 s · [foto em tamanho cheio](../images/accelerate-forward.jpg) (16,5 s) · Ilustra: [Afinação com dados reais](10-tuning.md)*
 
@@ -75,23 +63,13 @@ Ré por script com esterçamento. Partindo da imobilidade, o tanque recua (as le
 
 *Vídeo: 45,25–50,25 s · [foto em tamanho cheio](../images/reverse-steering.jpg) (47,25 s) · Ilustra: [Bugs e limitações](09-bugs.md)*
 
-<a id="crew-clipping"></a>
-
-## Modelo sem textura e tripulante atravessando a torre
-
-![Modelo sem textura e tripulante atravessando a torre](../images/crew-clipping.jpg)
-
-Vista frontal do casco e da torre sem textura durante a condução para frente. O tripulante em pé na escotilha da torre aparece com as botas visíveis abaixo da torre, no vão entre a torre e o teto do casco: a parte inferior do personagem atravessa o piso da torre.
-
-*Vídeo: 58 s · Ilustra: [Bugs e limitações](09-bugs.md)*
-
 <a id="runway-run"></a>
 
 ## Corrida longa pela pista
 
 ![Corrida longa pela pista](../images/runway-run.gif)
 
-Corrida longa para a frente pela pista, com a câmera orbitando o tanque em movimento (frente, lado direito, traseira). O velocímetro marca cerca de 50 km/h em 77,5 s, a maior velocidade deste vídeo; em outro teste, a máxima medida foi ~74 km/h. O canhão fica alinhado com o casco o tempo todo.
+Corrida longa para a frente pela pista, com a câmera orbitando o tanque em movimento (frente, lado direito, traseira). O velocímetro marca cerca de 50 km/h em 77,5 s, a maior velocidade deste vídeo; em outro teste, a máxima medida foi ~74 km/h.
 
 *Vídeo: 73,5–77,75 s · [foto em tamanho cheio](../images/runway-run.jpg) (77,5 s) · Ilustra: [Afinação com dados reais](10-tuning.md)*
 
@@ -121,13 +99,13 @@ Saindo do concreto para a grama ao lado da pista: a faixa branca da borda passa 
 
 ![Rodas e esteiras sem animação](../images/static-tracks.gif)
 
-Vista lateral numa laje de concreto a cerca de 17 km/h no velocímetro, seguida de uma parada brusca. As juntas das placas deslizam sob o tanque enquanto as rodas e os elos da esteira ficam idênticos de um quadro para outro: rodas e esteiras não são animadas (malha estática). Um prompt 'Open door' aparece no HUD durante a condução.
+Vista lateral numa laje de concreto a cerca de 17 km/h no velocímetro, seguida de uma parada brusca. As juntas das placas deslizam sob o tanque enquanto as rodas e os elos da esteira ficam idênticos de um quadro para outro: rodas e esteiras não são animadas (malha estática).
 
 *Vídeo: 110,6–113,6 s · [foto em tamanho cheio](../images/static-tracks.jpg) (111,2 s) · Ilustra: [Bugs e limitações](09-bugs.md)*
 
-## O que o vídeo revela que ainda falta
+## O que o vídeo revela sobre a esteira
 
-O teste também mostrou problemas que não aparecem no log. Eles valem para qualquer tanque feito com este guia, não só para o Leopard.
+O teste também mostrou comportamentos da esteira que não aparecem no log. Eles valem para qualquer tanque feito com este guia, não só para o Leopard.
 
 | Problema | Onde aparece | Situação |
 | --- | --- | --- |
@@ -135,12 +113,6 @@ O teste também mostrou problemas que não aparecem no log. Eles valem para qual
 | O painel não indica ré: o velocímetro mostra valor positivo e o conta-giros fica no topo | 28–31 s · 45,3–53,8 s | Efeito do bug da ré nativa ([detalhes](09-bugs.md)) |
 | A ré por script chegou a ~20 km/h, abaixo dos 31 km/h configurados | 28–31 s · 45,3–48,5 s | A força cai com a velocidade; empurrões de ~3 s não chegam ao teto |
 | No giro no lugar, o conta-giros cai para a lenta enquanto o casco ainda gira | 37,5–41,5 s · 113,5–115 s | Em aberto |
-| Ação "Open door [Z]" oferecida ao motorista | 8–13,25 s · 107–111,5 s | Provavelmente herdada do modelo de veículo; em aberto |
-| Sem animação de embarque: a visão corta direto para o banco | 5,3–5,5 s | Esperado com portas de teleporte (`GetInTeleport 1`) |
-| Tripulante na escotilha atravessa o piso da torre (botas abaixo dela) | 57,75–66,25 s · 72,5–73,75 s | Posição do tripulante a corrigir |
-| Ponto de visão do motorista na altura do teto da torre (pouca certeza) | 5,5–7,25 s | Câmera do motorista a corrigir |
-| A grama atravessa a parte de baixo do casco | 90–107 s | Em aberto |
-| A torre não gira em nenhum momento do vídeo | todo o vídeo | Não testado nesta gravação |
 
 ---
 

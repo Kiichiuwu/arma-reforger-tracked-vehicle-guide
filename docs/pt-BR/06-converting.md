@@ -14,7 +14,7 @@ Faça uma cópia de segurança do prefab. Depois troque a primeira linha para he
 Vehicle : "{0608D8FA71FD3433}Prefabs/Vehicles/Core/TrackedVehicle_Base.et" {
 ```
 
-Se o prefab herdava de um veículo vanilla (por exemplo `LAV25_base.et`), ele perde tudo o que vinha de lá. Copie para o seu prefab os componentes que você ainda quer (luzes, inventário, ações, slots).
+Se o prefab herdava de um veículo vanilla (por exemplo `LAV25_base.et`), ele perde tudo o que vinha de lá. Copie para o seu prefab os componentes que você ainda quer.
 
 ### 2. Remover os componentes de carro
 
@@ -29,7 +29,7 @@ Os dois bases usam ids diferentes para o nó de controladores. Se você só troc
 
 O movimento em rede usa o **mesmo id** nos dois bases, mas a classe é outra. Apague o bloco do carro para não sobrescrever o da esteira.
 
-Se o seu nó antigo tinha HUD ou outros componentes personalizados, mova-os para dentro do nó `{5D6501223785D0E7}`.
+Se o seu nó antigo tinha outros componentes personalizados, mova-os para dentro do nó `{5D6501223785D0E7}`.
 
 ### 3. Traduzir os atributos
 
@@ -56,10 +56,7 @@ Mods com rodas falsas costumam ter uma fileira `v_wheel_l01`…`l09` sem distin�
 | Sobra | O que fazer |
 | --- | --- |
 | `SCR_WheelHitZone` com `m_iWheelId` | O próprio `TrackedVehicle_Base` traz quatro (ids 0 a 3), herdados do carro. A numeração de rodas da esteira não foi verificada |
-| `SCR_VehicleDustPerWheel` | Não existe no base de esteira. Pode manter, mas teste |
-| Pontos de som por roda (`VehicleWheelSound`) | Ajuste os `Offset` para a posição das rodas novas |
 | `ChimeraAIPathfindingComponent`, `ChimeraAIVehicleControlComponent` | O `ChimeraAIVehicleControlComponent` também não existe no base de esteira; o `ChimeraAIPathfindingComponent` já vem do `Vehicle_Base.et`. A IA dirigindo tanque nativo não foi testada |
-| `SCR_VehicleBuoyancyComponent` | Ausente no base de esteira |
 
 ### 6. Proteção contra outros mods
 

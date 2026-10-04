@@ -1,4 +1,4 @@
-//! LEO_TrackedReverseComponent v4 (from the reverse-engineering study in MODLOG / work/research2).
+//! LEO_TrackedReverseComponent v4 (based on reverse engineering of the Workbench 1.8.0.13 executable).
 //!
 //! Why the native reverse can never drive (Workbench/game 1.8.0.13):
 //!   VehicleTrackedSimulation feeds the drivetrain load back to the engine as

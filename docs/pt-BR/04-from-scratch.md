@@ -9,8 +9,7 @@ Este roteiro leva um modelo novo até um tanque que anda, vira e dá ré. Tudo f
 ### 1. Criar o projeto do mod
 
 1. No Workbench, crie um projeto novo com dependência **apenas** do jogo base (`ArmaReforger`, GUID `58D0FB3206B6F859`).
-2. Se aparecer a janela *Missing Addon*, abra o Workbench pela linha de comando com `-addonsDir`. Liste a pasta `addons` do jogo, a do Tools e a pasta de addons do Workbench em Documentos.
-3. Crie as pastas `Assets/Vehicles/Tracked/<Nome>/` e `Prefabs/Vehicles/Tracked/<Nome>/`.
+2. Crie as pastas `Assets/Vehicles/Tracked/<Nome>/` e `Prefabs/Vehicles/Tracked/<Nome>/`.
 
 ### 2. Importar o modelo
 
@@ -243,9 +242,9 @@ O exemplo tem 2 rodas de apoio por lado para caber na página; acrescente as out
 - `Mass` em kg. O Leopard usa 64500.
 - `CenterOfMass` deve ficar baixo e um pouco atrás do centro. Um centro alto faz o tanque capotar nas curvas.
 
-### 7. Tripulação e entrada
+### 7. Assento do motorista
 
-O `PilotCompartmentSlot` já vem do vanilla, mas sem porta. Dê ao motorista uma `CompartmentDoorInfo` no `SCR_BaseCompartmentManagerComponent`. Sem porta, a ação de entrar aparece como *obstruída* (`#AR-UserAction_SeatObstructed`). Portas com `GetInTeleport 1` e `GetOutTeleport 1` dispensam animação.
+Para testar, alguém precisa dirigir. O `PilotCompartmentSlot` já vem do `TrackedVehicle_Base.et`; configure a entrada do motorista como em qualquer outro veículo do jogo.
 
 ### 8. Testar
 

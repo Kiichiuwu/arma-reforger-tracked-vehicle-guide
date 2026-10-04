@@ -4,7 +4,7 @@
 
 ![Leopard 2A7 girando no lugar com a esteira nativa](docs/images/pivot-in-place.gif)
 
-*Giro no lugar com a simulação de esteira nativa (teste do Leopard 2A7, modelo sem textura). Mais em [Exemplos em vídeo](docs/pt-BR/05-video-examples.md).*
+*Giro no lugar com a simulação de esteira nativa (teste do Leopard 2A7). Mais em [Exemplos em vídeo](docs/pt-BR/05-video-examples.md).*
 
 Um guia completo e testado do recurso de **veículo de esteira nativo** do Arma Reforger
 (`TrackedVehicle_Base` e `VehicleTrackedSimulation`): o que é, como funciona por dentro

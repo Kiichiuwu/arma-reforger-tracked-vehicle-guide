@@ -4,7 +4,7 @@
 
 ![Leopard 2A7 pivot turn with the native tracked simulation](docs/images/pivot-in-place.gif)
 
-*Pivot turn in place with the native tracked simulation (Leopard 2A7 test, untextured model). More in [Video examples](docs/en/05-video-examples.md).*
+*Pivot turn in place with the native tracked simulation (Leopard 2A7 test). More in [Video examples](docs/en/05-video-examples.md).*
 
 A complete, tested guide to the **native tracked vehicle** feature of Arma Reforger
 (`TrackedVehicle_Base` and `VehicleTrackedSimulation`): what it is, how it works inside,

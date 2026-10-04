@@ -1,0 +1,11 @@
+* text=auto eol=lf
+*.c text eol=lf
+*.md text eol=lf
+*.jpg binary
+*.png binary
+*.gif binary
+*.mp4 binary
+*.xob binary
+*.edds binary
+*.blend binary
+*.fbx binary

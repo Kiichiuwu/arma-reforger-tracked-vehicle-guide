@@ -14,7 +14,7 @@ Back up the prefab. Then change the first line so it inherits from `TrackedVehic
 Vehicle : "{0608D8FA71FD3433}Prefabs/Vehicles/Core/TrackedVehicle_Base.et" {
 ```
 
-If the prefab inherited from a vanilla vehicle (for example `LAV25_base.et`), it loses everything that came from there. Copy the components you still want into your prefab (lights, inventory, actions, slots).
+If the prefab inherited from a vanilla vehicle (for example `LAV25_base.et`), it loses everything that came from there. Copy the components you still want into your prefab.
 
 ### 2. Remove the car components
 
@@ -29,7 +29,7 @@ The two bases use different IDs for the controller node. If you only change the 
 
 Network movement uses the **same ID** in both bases, but the class is different. Delete the car block so it does not override the tracked one.
 
-If your old node had a HUD or other custom components, move them into the `{5D6501223785D0E7}` node.
+If your old node had other custom components, move them into the `{5D6501223785D0E7}` node.
 
 ### 3. Translate the attributes
 
@@ -56,10 +56,7 @@ Mods with fake wheels often have a row `v_wheel_l01`…`l09` with no distinction
 | Leftover | What to do |
 | --- | --- |
 | `SCR_WheelHitZone` with `m_iWheelId` | `TrackedVehicle_Base` itself brings four (IDs 0 to 3), carried over from the car. The tracked wheel numbering was not verified |
-| `SCR_VehicleDustPerWheel` | Does not exist in the tracked base. You can keep it, but test it |
-| Per-wheel sound points (`VehicleWheelSound`) | Adjust the `Offset` values to the position of the new wheels |
 | `ChimeraAIPathfindingComponent`, `ChimeraAIVehicleControlComponent` | `ChimeraAIVehicleControlComponent` does not exist in the tracked base either; `ChimeraAIPathfindingComponent` already comes from `Vehicle_Base.et`. AI driving a native tank was not tested |
-| `SCR_VehicleBuoyancyComponent` | Missing from the tracked base |
 
 ### 6. Protection against other mods
 

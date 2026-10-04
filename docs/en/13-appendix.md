@@ -230,7 +230,6 @@ In the controllers node, the Leopard only changes `ThrottleReverseTarget 1`. The
 | `Prefabs/Vehicles/Core/TrackedVehicle_Base.et` | `{0608D8FA71FD3433}` |
 | `Prefabs/Vehicles/Core/Components/VehicleTrackedSimulation_Base.ct` | `{BBF0C4D0AF8761DC}` |
 | `Prefabs/Vehicles/Core/Vehicle_Base.et` (parent of `TrackedVehicle_Base.et`) | `{4085446E2B406849}` |
-| `Prefabs/Vehicles/Core/Components/VehicleWheeledSimulation_Base.ct` | `{A25CB790B888B786}` |
 | `armor_100mm.gamemat` | `{5824DB4DA1A28E22}` |
 | `armor_80mm.gamemat` | `{B6F2475AE2D7E8FD}` |
 | `armor_40mm.gamemat` | `{8E8A10341B3BF250}` |
@@ -254,7 +253,6 @@ Use these IDs to override the inherited components:
 | `NwkTrackedMovementComponent` | `{5D6CA5AFEC980F35}` |
 | `RigidBody` | `{51DAA09FECF52BBF}` |
 | `MeshObject` | `{51DAA09FEFBFC0E7}` |
-| `SCR_BaseCompartmentManagerComponent` | `{20FB66C5DCB8DF72}` |
 | `SCR_WheeledDamageManagerComponent` | `{141326E9FD94FE40}` |
 
 ### D. Addresses in the executable
@@ -277,16 +275,6 @@ For anyone who wants to check the reverse engineering. File `ArmaReforgerWorkben
 | component + `0x1638` | Visual link chain, read without a check by the diag (crash 2) |
 | `0x140fe4940` | Command replay on the server (`NwkTrackedMovementComponent`) |
 
-### E. Tools used in this project
-
-| Tool | What for |
-| --- | --- |
-| `wbclient.py` | Client for the Workbench network API (JSON-RPC on `127.0.0.1:5775`) |
-| `pakx.py` / `pakgrep.py` | Read and search files inside the game's `.pak` files |
-| `rdbguid.py` | Find the GUID of a vanilla resource in `resourceDatabase.rdb` |
-| `prep_hier.py` / `export.py` | Turn the hierarchical `.blend` into a skeleton and export the FBX |
-| `assemble.py` | Build the mod prefabs from the drafts |
-| `LEO_TelemetryComponent` | Measure the behavior in game |
 
 ---
 

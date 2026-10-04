@@ -54,12 +54,9 @@ Procure a mensagem ou o sintoma na tabela certa. As mensagens aparecem no *Log C
 
 | Sintoma | Causa | Correção |
 | --- | --- | --- |
-| Janela *Missing Addon* (`Game addon '58D0FB3206B6F859' not found`) | Workbench aberto sem as pastas de addons | Abra com `-addonsDir` |
 | Ossos não aparecem no `.xob` | Importação sem esqueleto | *Export Skinning* e *Export Scene Hierarchy* ligados, *Merge Meshes* desligado |
 | `Scene_Root` duplicado | Osso raiz do Blender com esse nome | Renomeie para `v_body` |
 | Erro de material nos colisores | O padrão `material/metal.gamemat` não existe | Use `armor_XXmm.gamemat` |
-| Torre gira em torno da traseira | `v_turret_slot` fora do centro do anel | Osso no centro do anel; origem do `.xob` da torre no mesmo ponto |
-| Atirador aparece como *obstruído* | Torre sem `DoorInfoList` | Portas com teleporte no compartimento da torre |
 
 ---
 

@@ -38,7 +38,7 @@ Ajuste `m_fSteerTorque` pela massa: o valor do Leopard serve para cerca de 65 t.
 ### LEO\_TrackedReverseComponent.c (ré por script, v4)
 
 ```c
-//! LEO_TrackedReverseComponent v4 (from the reverse-engineering study in MODLOG / work/research2).
+//! LEO_TrackedReverseComponent v4 (based on reverse engineering of the Workbench 1.8.0.13 executable).
 //!
 //! Why the native reverse can never drive (Workbench/game 1.8.0.13):
 //!   VehicleTrackedSimulation feeds the drivetrain load back to the engine as
@@ -229,7 +229,7 @@ class LEO_TrackedReverseComponent : ScriptComponent
 
 ### LEO\_TelemetryComponent.c (telemetria para afinação)
 
-Escreve uma linha `LEOTEL` a cada 0.5 s com o motor ligado. Na primeira vez, também registra a posição da torre e as matrizes de alguns ossos.
+Escreve uma linha `LEOTEL` a cada 0.5 s com o motor ligado.
 
 ```c
 //! Debug telemetry for tuning the tracked simulation: prints drivetrain state to the log while moving or revving.
@@ -274,55 +274,6 @@ class LEO_TelemetryComponent : ScriptComponent
 		SetEventMask(owner, EntityEvent.FRAME);
 	}
 
-	protected bool m_bTurretLogged;
-
-	//------------------------------------------------------------------------------------------------
-	//! Logs where the turret entity really sits in hull space (expected from the model: 0 1.726 -0.301,
-	//! i.e. Blender v_turret_slot (0, -0.301, 1.726) converted to Enfusion x, z, y).
-	protected void LogTurretPlacement(IEntity owner)
-	{
-		IEntity child = owner.GetChildren();
-		while (child)
-		{
-			if (Turret.Cast(child))
-			{
-				vector local = owner.CoordToLocal(child.GetOrigin());
-				PrintFormat("LEOTEL turret local position %1 (expected 0 1.726 -0.301)", local);
-				LogBones(child, {"v_gun_01", "v_muzzle", "gunner_idle", "gunner_getIn", "v_gunner_sight", "commander_idle", "v_commander_sight"});
-				LogBones(owner, {"v_turret_slot", "v_wheel_l01", "v_sprocket_l"});
-				m_bTurretLogged = true;
-				return;
-			}
-
-			child = child.GetSibling();
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------
-	//! Logs model-space bone matrices (X, Y, Z axes and position). Identity axes = <1,0,0> <0,1,0> <0,0,1>.
-	protected void LogBones(IEntity entity, array<string> names)
-	{
-		Animation anim = entity.GetAnimation();
-		if (!anim)
-		{
-			PrintFormat("LEOTEL bones: %1 has no animation", entity);
-			return;
-		}
-
-		foreach (string name : names)
-		{
-			TNodeId bone = anim.GetBoneIndex(name);
-			vector mat[4];
-			if (bone == -1 || !anim.GetBoneMatrix(bone, mat))
-			{
-				PrintFormat("LEOTEL bone %1 NOT FOUND", name);
-				continue;
-			}
-
-			PrintFormat("LEOTEL bone %1 X=%2 Y=%3 Z=%4 pos=%5", name, mat[0], mat[1], mat[2], mat[3]);
-		}
-	}
-
 	//------------------------------------------------------------------------------------------------
 	override void EOnFrame(IEntity owner, float timeSlice)
 	{
@@ -331,8 +282,6 @@ class LEO_TelemetryComponent : ScriptComponent
 			return;
 
 		m_fTimer = 0;
-		if (!m_bTurretLogged)
-			LogTurretPlacement(owner);
 
 		if (!m_Controller || !m_Controller.IsEngineOn())
 			return;
@@ -381,7 +330,7 @@ O comentário do topo atribui o crash 1 aos getters em geral. A investigação p
 - Pegue a simulação com `TrackedControllerComponent.GetSimulation()`.
 - Use `GetGear()`, `GetClutch()`, `GetBrake()`, `EngineGetRPM()` e `EngineGetRPMFeedback()`.
 - **Nunca** use `GetInputs()` nem `GetFloorNormalAngles()`.
-- `Physics` e `Animation` só podem ser variáveis locais. Como membro da classe, o compilador recusa.
+- `Physics` só pode ser variável local. Como membro da classe, o compilador recusa.
 - Leia entradas com `GetGame().GetInputManager().GetActionValue("TrackedBrake")` e afins.
 
 ---

@@ -54,12 +54,9 @@ Find the message or symptom in the right table. Messages appear in the Workbench
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| *Missing Addon* window (`Game addon '58D0FB3206B6F859' not found`) | Workbench opened without the addon folders | Open it with `-addonsDir` |
 | Bones do not show in the `.xob` | Imported without a skeleton | *Export Skinning* and *Export Scene Hierarchy* on, *Merge Meshes* off |
 | Duplicate `Scene_Root` | The Blender root bone has that name | Rename it to `v_body` |
 | Material error on the colliders | The default `material/metal.gamemat` does not exist | Use `armor_XXmm.gamemat` |
-| Turret rotates around the rear | `v_turret_slot` is off the ring center | Bone at the ring center; turret `.xob` origin at the same point |
-| Gunner shows as *obstructed* | Turret has no `DoorInfoList` | Doors with teleport in the turret compartment |
 
 ---
 

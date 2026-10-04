@@ -230,7 +230,6 @@ No nó de controladores, o Leopard só muda `ThrottleReverseTarget 1`. O `RigidB
 | `Prefabs/Vehicles/Core/TrackedVehicle_Base.et` | `{0608D8FA71FD3433}` |
 | `Prefabs/Vehicles/Core/Components/VehicleTrackedSimulation_Base.ct` | `{BBF0C4D0AF8761DC}` |
 | `Prefabs/Vehicles/Core/Vehicle_Base.et` (pai do `TrackedVehicle_Base.et`) | `{4085446E2B406849}` |
-| `Prefabs/Vehicles/Core/Components/VehicleWheeledSimulation_Base.ct` | `{A25CB790B888B786}` |
 | `armor_100mm.gamemat` | `{5824DB4DA1A28E22}` |
 | `armor_80mm.gamemat` | `{B6F2475AE2D7E8FD}` |
 | `armor_40mm.gamemat` | `{8E8A10341B3BF250}` |
@@ -254,7 +253,6 @@ Use estes ids para sobrescrever os componentes herdados:
 | `NwkTrackedMovementComponent` | `{5D6CA5AFEC980F35}` |
 | `RigidBody` | `{51DAA09FECF52BBF}` |
 | `MeshObject` | `{51DAA09FEFBFC0E7}` |
-| `SCR_BaseCompartmentManagerComponent` | `{20FB66C5DCB8DF72}` |
 | `SCR_WheeledDamageManagerComponent` | `{141326E9FD94FE40}` |
 
 ### D. Endereços no executável
@@ -277,16 +275,6 @@ Para quem quiser conferir a engenharia reversa. Arquivo `ArmaReforgerWorkbenchSt
 | componente + `0x1638` | Corrente visual de elos, lida sem checagem pelo diag (crash 2) |
 | `0x140fe4940` | Reexecução dos comandos no servidor (`NwkTrackedMovementComponent`) |
 
-### E. Ferramentas usadas neste projeto
-
-| Ferramenta | Para quê |
-| --- | --- |
-| `wbclient.py` | Cliente da API de rede do Workbench (JSON-RPC em `127.0.0.1:5775`) |
-| `pakx.py` / `pakgrep.py` | Ler e buscar arquivos dentro dos `.pak` do jogo |
-| `rdbguid.py` | Achar o GUID de um recurso vanilla no `resourceDatabase.rdb` |
-| `prep_hier.py` / `export.py` | Converter o `.blend` hierarquizado em esqueleto e exportar o FBX |
-| `assemble.py` | Montar os prefabs do mod a partir dos rascunhos |
-| `LEO_TelemetryComponent` | Medir o comportamento em jogo |
 
 ---
 

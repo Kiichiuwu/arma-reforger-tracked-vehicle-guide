@@ -9,8 +9,7 @@ This walkthrough takes a new model to a tank that drives, turns and reverses. Ev
 ### 1. Create the mod project
 
 1. In Workbench, create a new project that depends **only** on the base game (`ArmaReforger`, GUID `58D0FB3206B6F859`).
-2. If the *Missing Addon* window appears, start Workbench from the command line with `-addonsDir`. List the game's `addons` folder, the Tools one and the Workbench addons folder in Documents.
-3. Create the folders `Assets/Vehicles/Tracked/<Nome>/` and `Prefabs/Vehicles/Tracked/<Nome>/`.
+2. Create the folders `Assets/Vehicles/Tracked/<Nome>/` and `Prefabs/Vehicles/Tracked/<Nome>/`.
 
 ### 2. Import the model
 
@@ -243,9 +242,9 @@ The example has 2 road wheels per side to fit on the page; add the others in the
 - `Mass` is in kg. The Leopard uses 64500.
 - `CenterOfMass` should be low and slightly behind the center. A high center makes the tank roll over in turns.
 
-### 7. Crew and entry
+### 7. Driver seat
 
-The `PilotCompartmentSlot` already comes from vanilla, but without a door. Give the driver a `CompartmentDoorInfo` in the `SCR_BaseCompartmentManagerComponent`. Without a door, the get-in action shows as *obstructed* (`#AR-UserAction_SeatObstructed`). Doors with `GetInTeleport 1` and `GetOutTeleport 1` need no animation.
+To test, someone has to drive. The `PilotCompartmentSlot` already comes from `TrackedVehicle_Base.et`; set up the driver's entry as for any other vehicle in the game.
 
 ### 8. Test
 

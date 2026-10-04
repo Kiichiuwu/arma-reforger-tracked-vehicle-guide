@@ -23,7 +23,7 @@ Rules the engine checks on load:
 
 **Orientation and scale** (Blender → Enfusion): model in meters, with the vehicle front toward **+Y**, Z up and the ground at z = 0. The default Blender FBX exporter (forward -Z, up Y) maps Blender +Y to Enfusion +Z (front). The +X axis stays the right side. So the suffix `_l` = -X side and `_r` = +X side.
 
-**Bones in Blender:** one armature with a root bone that is **not** named `Scene_Root` (the `.xob` already creates a root node with that name; on the Leopard the root bone is `v_body`). Each moving part has 100% weight on its own bone, with no mixed weights.
+**Bones in Blender:** one armature with a root bone that is **not** named `Scene_Root` (the `.xob` already creates a root node with that name; on the Leopard the root bone is `v_body`). Each road wheel, drive sprocket and idler has 100% weight on its own bone, with no mixed weights.
 
 **Colliders:** `UCX_*` meshes (convex), with the custom property `usage = "Vehicle"`. The physics material of each collider is set in the `.xob.meta`. The vanilla armor materials are `Common/Materials/Game/Armor/armor_{1..100}mm.gamemat`. The default that the importer assigns (`{536BF67B2052B869}material/metal.gamemat`) does not exist and causes an error.
 
@@ -33,11 +33,10 @@ Rules the engine checks on load:
 | --- | --- | --- |
 | Merge Meshes | off | Otherwise the hull, wheels and tracks become a single mesh |
 | Export Skinning | on | Without it, the bones do not go into the `.xob` |
-| Export Scene Hierarchy | on | Keeps the hierarchy of bones and points |
+| Export Scene Hierarchy | on | Keeps the bone hierarchy |
 
 In the `.meta`, this shows up as `MergeMeshes 0`, `ExportSkinning 1` and `ExportSceneHierarchy 1`.
 
-A turret goes in a separate `.xob`, attached to the hull by a slot bone (`v_turret_slot`, at the center of the ring). The turret has its own bones: `v_gun_01` at the trunnion, crew points, sights, etc.
 
 ---
 

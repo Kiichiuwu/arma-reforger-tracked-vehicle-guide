@@ -21,6 +21,18 @@ overlay. Each fact is marked as measured, reverse-engineered, observed in video 
 
 **Tested on:** Arma Reforger / Enfusion Workbench **1.8.0.13** (October 2026).
 
+## Workshop mod and model download
+
+| | |
+| --- | --- |
+| **Workshop mod** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), version 0.9.0. A base prefab to build your own tanks on. Multiplayer is not tested yet |
+| **Mod GUID** | `7E4ABBD41FEDAC42`. Add it to `Dependencies` in your `addon.gproj` to inherit the Leopard prefabs and scripts in your own mod |
+| **Mod license** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): use, modify and reupload it freely, just keep the credits |
+
+**3D model:** [⬇ Download the modified model (FBX + textures, 32 MB)](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/releases/download/leopard2a6-model-v1/Leopard2A6_Enfusion_model_v1.zip) · [Original model on Sketchfab](https://sketchfab.com/3d-models/leopard-2-a6-7cb23d5322df4b409a880de635826067)
+
+The modified model is the one the mod uses: split into hull, turret, periscope and track link, with the running gear bones and suspension rig, `UCX_` colliders, the `COM_hull` point, LODs and textures repacked for Enfusion. Both are CC BY 4.0 by buh-late; see [the release](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/releases/tag/leopard2a6-model-v1) for details.
+
 ## Why this exists
 
 The base game ships a tracked simulation, but no vanilla vehicle uses it and its default
@@ -157,6 +169,7 @@ examples/leopard2a6/  The Leopard 2A6 prefab blocks: simulation with link chain,
 | Documentation and images (`docs/`, READMEs, `CREDITS.md`) | [CC BY-SA 4.0](LICENSE-docs) |
 | Code (`scripts/`, `tools/`, prefab blocks and code snippets in `examples/`) | [MIT](LICENSE) |
 | Leopard 2A6 3D model, shown in the images and used by the example mod | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), credit buh-late, modified |
+| Workshop mod and the modified model download | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), credit buh-late (model) and Kiichi |
 | Leopard 2A7 3D model shown in the first edition's images (tag `v1-leopard2a7` only) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), credit king_st0ne |
 
 Arma Reforger and Enfusion are trademarks of Bohemia Interactive a.s. This project is not

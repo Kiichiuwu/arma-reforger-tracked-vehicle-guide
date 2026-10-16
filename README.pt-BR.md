@@ -22,6 +22,18 @@ obtido por engenharia reversa, observado em vídeo ou não testado.
 
 **Testado em:** Arma Reforger / Enfusion Workbench **1.8.0.13** (outubro de 2026).
 
+## Mod no Workshop e download do modelo
+
+| | |
+| --- | --- |
+| **Mod no Workshop** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), versão 0.9.0. Um prefab base para você montar os seus próprios tanques. O multiplayer ainda não foi testado |
+| **GUID do mod** | `7E4ABBD41FEDAC42`. Acrescente em `Dependencies` no seu `addon.gproj` para herdar os prefabs e os scripts do Leopard no seu mod |
+| **Licença do mod** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.pt_BR): use, modifique e republique à vontade, só mantenha os créditos |
+
+**Modelo 3D:** [⬇ Baixar o modelo modificado (FBX + texturas, 32 MB)](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/releases/download/leopard2a6-model-v1/Leopard2A6_Enfusion_model_v1.zip) · [Modelo original no Sketchfab](https://sketchfab.com/3d-models/leopard-2-a6-7cb23d5322df4b409a880de635826067)
+
+O modelo modificado é o que o mod usa: dividido em casco, torre, periscópio e elo da esteira, com os ossos do trem de rolamento e o rig de suspensão, colisores `UCX_`, o ponto `COM_hull`, LODs e as texturas reorganizadas para o Enfusion. Os dois são CC BY 4.0 do buh-late; os detalhes estão [na release](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/releases/tag/leopard2a6-model-v1).
+
 ## Por que existe
 
 O jogo base traz uma simulação de esteira, mas nenhum veículo vanilla a usa e a
@@ -161,6 +173,7 @@ examples/leopard2a6/  Blocos de prefab do Leopard 2A6: simulação com corrente 
 | Documentação e imagens (`docs/`, READMEs, `CREDITS.md`) | [CC BY-SA 4.0](LICENSE-docs) |
 | Código (`scripts/`, `tools/`, blocos de prefab e trechos de código em `examples/`) | [MIT](LICENSE) |
 | Modelo 3D do Leopard 2A6, que aparece nas imagens e é usado pelo mod de exemplo | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.pt_BR), crédito a buh-late, modificado |
+| Mod no Workshop e o download do modelo modificado | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.pt_BR), crédito a buh-late (modelo) e Kiichi |
 | Modelo 3D do Leopard 2A7 que aparece nas imagens da primeira edição (só na tag `v1-leopard2a7`) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.pt_BR), crédito a king_st0ne |
 
 Arma Reforger e Enfusion são marcas da Bohemia Interactive a.s. Este projeto não tem

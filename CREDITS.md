@@ -9,6 +9,8 @@
 | Source / Fonte | <https://sketchfab.com/3d-models/leopard-2-a6-7cb23d5322df4b409a880de635826067> |
 | Published / Publicado | 2024-01-17 |
 | License / Licença | Creative Commons Attribution 4.0 International (CC BY 4.0) — <https://creativecommons.org/licenses/by/4.0/> |
+| Modified version / Versão modificada | [⬇ Leopard2A6_Enfusion_model_v1.zip](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/releases/download/leopard2a6-model-v1/Leopard2A6_Enfusion_model_v1.zip) (FBX + textures / texturas), CC BY 4.0 |
+| Used by / Usado por | Workshop mod / mod no Workshop [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), GUID `7E4ABBD41FEDAC42` |
 
 **EN** — The Leopard 2A6 used in the example mod, the screenshots and the GIFs is a modified version
 of this model. Changes made for Enfusion:

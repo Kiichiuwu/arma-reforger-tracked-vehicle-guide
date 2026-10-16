@@ -44,6 +44,11 @@ class LEO_TrackedReverseComponent : ScriptComponent
 	[Attribute("1", desc: "Print LEOREV diagnostics to the log while the reverse key is held")]
 	protected bool m_bDebug;
 
+	[Attribute("1", desc: "Stop the engine when the driver seat becomes empty. Without a driver the controller pulls the handbrake, which at standstill makes it select reverse (gear 0); the native reverse bug then pins the engine far above RpmMax")]
+	protected bool m_bStopEngineOnExit;
+
+	protected bool m_bHadDriver;
+
 	protected TrackedControllerComponent m_Controller;
 	protected BaseCompartmentSlot m_PilotSlot;
 	protected float m_fDebugTimer;
@@ -56,7 +61,31 @@ class LEO_TrackedReverseComponent : ScriptComponent
 		if (m_Controller)
 			m_PilotSlot = m_Controller.GetPilotCompartmentSlot();
 
-		SetEventMask(owner, EntityEvent.SIMULATE);
+		SetEventMask(owner, EntityEvent.SIMULATE | EntityEvent.FRAME);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Runs every frame (physics may sleep once nobody drives, so this is not done in EOnSimulate).
+	override void EOnFrame(IEntity owner, float timeSlice)
+	{
+		if (!m_bStopEngineOnExit || !m_Controller)
+			return;
+
+		if (!m_PilotSlot)
+			m_PilotSlot = m_Controller.GetPilotCompartmentSlot();
+
+		if (!m_PilotSlot)
+			return;
+
+		bool hasDriver = m_PilotSlot.GetOccupant() != null;
+		if (m_bHadDriver && !hasDriver && m_Controller.IsEngineOn())
+		{
+			m_Controller.StopEngine(false);
+			if (m_bDebug)
+				Print("LEOREV driver left: engine stopped");
+		}
+
+		m_bHadDriver = hasDriver;
 	}
 
 	//------------------------------------------------------------------------------------------------

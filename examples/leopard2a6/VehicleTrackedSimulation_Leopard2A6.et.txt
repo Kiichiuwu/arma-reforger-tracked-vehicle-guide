@@ -1,14 +1,3 @@
-> 🇧🇷 Português · [🇬🇧 English](../en/13-appendix.md)
-
-[← Solução de problemas](12-troubleshooting.md) · [Índice](../../README.pt-BR.md)
-
-# Apêndice
-
-### A. Bloco completo do Leopard 2A7
-
-Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele vai dentro de `components { }` do prefab do casco.
-
-```
   VehicleTrackedSimulation "{6160DE6434513C4D}" {
    Simulation Tracked "{6160DE65F2933990}" {
     SolverSubsteps 4
@@ -39,7 +28,7 @@ Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele 
      Efficiency 0.9
     }
     Differential TripleDifferential "{663757C64F4BFDDD}" {
-     Ratio 4.9
+     Ratio 4.6
      SteeringRatio 6
      NeutralSteeringRatio 12
     }
@@ -79,7 +68,7 @@ Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele 
     }
     RoadWheel RoadWheel "{379D05FA6C0BDB8F}" {
      Mass 110
-     Radius 0.438
+     Radius 0.418
      BrakeTorque 6000
      Suspension Suspension "{DBF219524735553D}" {
       MaxSteeringAngle 0
@@ -87,18 +76,23 @@ Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele 
       CompressionDamper 25000
       RelaxationDamper 35000
       MaxTravelUp 0.30
-      MaxTravelDown 0.15
+      MaxTravelDown 0.10
       RayStartOffsetUp 0.5
      }
     }
     Sprocket Sprocket "{68A5D8FC81D86ECE}" {
      Mass 250
-     Radius 0.355
+     Radius 0.34
      BrakeTorque 30000
     }
     Idler Idler "{C8F9E465BBF2B04F}" {
      Mass 150
-     Radius 0.265
+     Radius 0.335
+     BrakeTorque 0
+    }
+    Roller Roller "{EC9CBBD192126CCB}" {
+     Mass 20
+     Radius 0.152
      BrakeTorque 0
     }
     RegenerativeSteering 1
@@ -111,12 +105,6 @@ Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele 
     Tracks {
      Track Left {
       Wheels {
-       TrackPart Idler_L {
-        Type Idler
-        Pivot Pivot "{C7D9DF8DAAE72E34}" {
-         Bone "v_idler_l"
-        }
-       }
        TrackPart Wheel_L01 {
         Pivot Pivot "{3542EB258D51A1DB}" {
          Bone "v_wheel_l01"
@@ -152,22 +140,46 @@ Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele 
          Bone "v_wheel_l07"
         }
        }
+       TrackPart Idler_L {
+        Type Idler
+        Pivot Pivot "{C7D9DF8DAAE72E34}" {
+         Bone "v_idler_l"
+        }
+       }
        TrackPart Sprocket_L {
         Type Sprocket
         Pivot Pivot "{F67E7A2BDE42902D}" {
          Bone "v_sprocket_l"
         }
        }
+       TrackPart Roller_L01 {
+        Type "Return Roller"
+        Pivot Pivot "{495CE3DBFC7DD5D5}" {
+         Bone "v_roller_l01"
+        }
+       }
+       TrackPart Roller_L02 {
+        Type "Return Roller"
+        Pivot Pivot "{068B4C4818A9ABAB}" {
+         Bone "v_roller_l02"
+        }
+       }
+       TrackPart Roller_L03 {
+        Type "Return Roller"
+        Pivot Pivot "{857B6B1E4C45E6F7}" {
+         Bone "v_roller_l03"
+        }
+       }
+       TrackPart Roller_L04 {
+        Type "Return Roller"
+        Pivot Pivot "{92F7DC37B619974C}" {
+         Bone "v_roller_l04"
+        }
+       }
       }
      }
      Track Right {
       Wheels {
-       TrackPart Idler_R {
-        Type Idler
-        Pivot Pivot "{78491E57BF71F53D}" {
-         Bone "v_idler_r"
-        }
-       }
        TrackPart Wheel_R01 {
         Pivot Pivot "{A57984BE1E4ABF5B}" {
          Bone "v_wheel_r01"
@@ -203,10 +215,40 @@ Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele 
          Bone "v_wheel_r07"
         }
        }
+       TrackPart Idler_R {
+        Type Idler
+        Pivot Pivot "{78491E57BF71F53D}" {
+         Bone "v_idler_r"
+        }
+       }
        TrackPart Sprocket_R {
         Type Sprocket
         Pivot Pivot "{56A9D7F8C0E3E63F}" {
          Bone "v_sprocket_r"
+        }
+       }
+       TrackPart Roller_R01 {
+        Type "Return Roller"
+        Pivot Pivot "{EB15271F764DB1D9}" {
+         Bone "v_roller_r01"
+        }
+       }
+       TrackPart Roller_R02 {
+        Type "Return Roller"
+        Pivot Pivot "{0DE3390B35CF1172}" {
+         Bone "v_roller_r02"
+        }
+       }
+       TrackPart Roller_R03 {
+        Type "Return Roller"
+        Pivot Pivot "{61C42E2BEBDF2121}" {
+         Bone "v_roller_r03"
+        }
+       }
+       TrackPart Roller_R04 {
+        Type "Return Roller"
+        Pivot Pivot "{CCE7F4BD417F618E}" {
+         Bone "v_roller_r04"
         }
        }
       }
@@ -217,65 +259,13 @@ Este é o bloco que está no `Leopard2A7_base.et` do mod, sem comentários. Ele 
      DragCoefficient 0.9
     }
    }
+   TrackSegments 73
+   TrackPositions {
+    -2.0577 1.2299 -1.8483 1.2299 -1.6390 1.2299 -1.4296 1.2299 -1.2202 1.2299 -1.0108 1.2299 -0.8015 1.2299 -0.5921 1.2299 -0.3827 1.2299 -0.1734 1.2299 0.0360 1.2299 0.2454 1.2299 0.4548 1.2299 0.6641 1.2299 0.8735 1.2299 1.0829 1.2299 1.2922 1.2299 1.5016 1.2299 1.7110 1.2299 1.9204 1.2299 2.1297 1.2299 2.3388 1.2188 2.5479 1.2074 2.7569 1.1960 2.9660 1.1846 3.1749 1.1720 3.3601 1.0817 3.4574 0.9002 3.4301 0.6960 3.2918 0.5419 3.1294 0.4097 2.9669 0.2776 2.8045 0.1455 2.6313 0.0298 2.4256 0.0006 2.2163 0.0006 2.0069 0.0006 1.7975 0.0006 1.5881 0.0006 1.3788 0.0006 1.1694 0.0006 0.9600 0.0006 0.7507 0.0006 0.5413 0.0006 0.3319 0.0006 0.1225 0.0006 -0.0868 0.0006 -0.2962 0.0006 -0.5056 0.0006 -0.7149 0.0006 -0.9243 0.0006 -1.1337 0.0006 -1.3431 0.0006 -1.5524 0.0006 -1.7618 0.0006 -1.9712 0.0006 -2.1805 0.0006 -2.3899 0.0006 -2.5976 0.0181 -2.7826 0.1146 -2.9616 0.2232 -3.1406 0.3317 -3.3197 0.4403 -3.4980 0.5500 -3.6193 0.7165 -3.6222 0.9226 -3.5055 1.0925 -3.3122 1.1638 -3.1031 1.1748 -2.8940 1.1859 -2.6849 1.1969 -2.4759 1.2080 -2.2668 1.2191
+   }
+   TrackLength 0.2110
+   TrackThickness 0.076
+   TrackOffset1 -1.3281 0 0
+   TrackOffset2 1.3281 0 0
+   TrackSegment "{B50AEDC702735F50}Assets/Vehicles/Tracked/Leopard2A6/Leopard2A6_track_link.xob"
   }
-```
-
-No nó de controladores, o Leopard só muda `ThrottleReverseTarget 1`. O `RigidBody` tem `Mass 64500` e `CenterOfMass 0 1 -0.3`.
-
-### B. GUIDs de recursos vanilla
-
-| Recurso | GUID |
-| --- | --- |
-| Jogo base (`ArmaReforger.gproj`) | `58D0FB3206B6F859` |
-| `Prefabs/Vehicles/Core/TrackedVehicle_Base.et` | `{0608D8FA71FD3433}` |
-| `Prefabs/Vehicles/Core/Components/VehicleTrackedSimulation_Base.ct` | `{BBF0C4D0AF8761DC}` |
-| `Prefabs/Vehicles/Core/Vehicle_Base.et` (pai do `TrackedVehicle_Base.et`) | `{4085446E2B406849}` |
-| `armor_100mm.gamemat` | `{5824DB4DA1A28E22}` |
-| `armor_80mm.gamemat` | `{B6F2475AE2D7E8FD}` |
-| `armor_40mm.gamemat` | `{8E8A10341B3BF250}` |
-| `armor_20mm.gamemat` | `{33CE4B76B338E44F}` |
-| Elo de esteira do M113 (não vem no jogo) | `{32FF46BA61EE0DCA}` |
-
-O `ID "BBCBA43A9778AE21"` dentro do `TrackedVehicle_Base.et` é o id da entidade, **não** o GUID do arquivo.
-
-### C. Ids de instância do base de esteira
-
-Use estes ids para sobrescrever os componentes herdados:
-
-| Componente | Id |
-| --- | --- |
-| `VehicleTrackedSimulation` | `{6160DE6434513C4D}` |
-| `Simulation Tracked` | `{6160DE65F2933990}` |
-| `Differential TripleDifferential` | `{663757C64F4BFDDD}` |
-| `Aerodynamics` | `{6160DE6521A7B70A}` |
-| `BaseVehicleNodeComponent` | `{5D6501223785D0E7}` |
-| `SCR_TrackedControllerComponent` | `{60F8D3F71B2F1D79}` |
-| `NwkTrackedMovementComponent` | `{5D6CA5AFEC980F35}` |
-| `RigidBody` | `{51DAA09FECF52BBF}` |
-| `MeshObject` | `{51DAA09FEFBFC0E7}` |
-| `SCR_WheeledDamageManagerComponent` | `{141326E9FD94FE40}` |
-
-### D. Endereços no executável
-
-Para quem quiser conferir a engenharia reversa. Arquivo `ArmaReforgerWorkbenchSteamDiag.exe` 1.8.0.13, base `0x140000000`.
-
-| Endereço | Função |
-| --- | --- |
-| `0x140ea7050` | Passo da simulação de esteira |
-| `0x140e9feb0` | Relação por lado (divide a carga) |
-| `0x140ea7ac0` / `0x140ea7aec` | Multiplicação e divisão da reação pela relação |
-| `0x140e85830` | Sincronização do motor (aplica a reação na rotação) |
-| `0x140e85060` | Curva de torque do motor |
-| `0x140e86070` | Tabela do câmbio `[−\|Reverse\|, 0, Forward...]` |
-| `0x140fe8320` | Máquina de estados da seleção de sentido |
-| `0x140fe7cf0` / `0x140fe8880` | Pedido de marcha e máquina de troca |
-| `0x140fe85c0` | Embreagem na arrancada |
-| `0x140fe76c0` / `0x140fee110` | Leitura das entradas e portão de entradas |
-| `0x140fc10a0` | Ligação defeituosa de `GetInputs()` (crash 1) |
-| componente + `0x1638` | Corrente visual de elos, lida sem checagem pelo diag (crash 2) |
-| `0x140fe4940` | Reexecução dos comandos no servidor (`NwkTrackedMovementComponent`) |
-
-
----
-
-[← Solução de problemas](12-troubleshooting.md) · [Índice](../../README.pt-BR.md)

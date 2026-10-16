@@ -16,6 +16,9 @@ class LEO_TelemetryComponent : ScriptComponent
 	[Attribute("1", desc: "Also read gear/clutch/throttle/brake from the simulation obtained via the controller")]
 	protected bool m_bReadSimulation;
 
+	[Attribute("0.4186", desc: "Modelled road wheel centre height (bone v_wheel_l01 at rest) [m], for the absolute suspension travel in LEOSUSP")]
+	protected float m_fWheelRestHeight;
+
 	// simBrk 6.0 = handbrake (SetBreak(x, true)); gear 0 = R, 1 = N, 2.. = forward 1..n
 
 	protected float m_fTimer;
@@ -40,6 +43,72 @@ class LEO_TelemetryComponent : ScriptComponent
 		SetEventMask(owner, EntityEvent.FRAME);
 	}
 
+	protected float m_fSuspensionTimer;
+
+	//------------------------------------------------------------------------------------------------
+	//! Every 2 s with the engine on, per track (7 road wheels, bones v_wheel_<s>0X): how far each animated road wheel
+	//! bone (model space, includes the suspension translation) sits from where the simulation has that wheel (ground
+	//! contact + radius, hull space) in mm, the simulation's travel from the modelled height (mm, + = up), and the
+	//! spin of each road wheel and the sprocket about the axle (degrees).
+	//! With LEO_RunningGearComponent driving the bones, all diffs are ~0 and a track's road wheel spins are equal.
+	//! With CarProcAnimComponent (1.8.0.13) they were not: most bones got another wheel's signals.
+	//! Only called with the engine on: the wheel getters are only read from a loaded simulation.
+	protected void LogSuspension(IEntity owner)
+	{
+		m_fSuspensionTimer += m_fInterval;
+		if (m_fSuspensionTimer < 2)
+			return;
+
+		m_fSuspensionTimer = 0;
+		VehicleTrackedSimulation simulation = m_Controller.GetSimulation();
+		Animation anim = owner.GetAnimation();
+		if (!simulation || !anim)
+			return;
+
+		for (int track = 0; track < 2; track++)
+		{
+			string side = "l";
+			if (track == 1)
+				side = "r";
+
+			string diffs, spins, travels;
+			float worst;
+			vector mat[4];
+			for (int i = 0; i < 7; i++)
+			{
+				TNodeId bone = anim.GetBoneIndex("v_wheel_" + side + "0" + (i + 1).ToString());
+				if (bone == -1 || !anim.GetBoneMatrix(bone, mat))
+				{
+					diffs += " ?";
+					spins += " ?";
+					continue;
+				}
+
+				float spin = Math.Atan2(mat[1][2], mat[1][1]) * Math.RAD2DEG;	// rotation about the axle (X)
+				spins += " " + spin.ToString(4, 0);
+				if (!simulation.WheelHasContact(track, i))
+				{
+					diffs += " air";
+					travels += " air";
+					continue;
+				}
+
+				float simY = owner.CoordToLocal(simulation.WheelGetContactPosition(track, i))[1] + simulation.WheelGetRadius(track, i);
+				float diff = (mat[3][1] - simY) * 1000;
+				diffs += " " + diff.ToString(3, 0);
+				travels += " " + ((simY - m_fWheelRestHeight) * 1000).ToString(3, 0);
+				if (Math.AbsFloat(diff) > worst)
+					worst = Math.AbsFloat(diff);
+			}
+
+			TNodeId sprocket = anim.GetBoneIndex("v_sprocket_" + side);
+			if (sprocket != -1 && anim.GetBoneMatrix(sprocket, mat))
+				spins += " sprocket " + (Math.Atan2(mat[1][2], mat[1][1]) * Math.RAD2DEG).ToString(4, 0);
+
+			PrintFormat("LEOSUSP track=%1 worst_mm=%2 diff_mm=%3 travel_mm=%4 spin=%5", side, worst.ToString(3, 0), diffs, travels, spins);
+		}
+	}
+
 	//------------------------------------------------------------------------------------------------
 	override void EOnFrame(IEntity owner, float timeSlice)
 	{
@@ -48,9 +117,14 @@ class LEO_TelemetryComponent : ScriptComponent
 			return;
 
 		m_fTimer = 0;
+		// hull attitude even with the engine off (pitch > 0 = nose up), to tune the centre of mass
+		vector ypr = owner.GetYawPitchRoll();
+		PrintFormat("LEOTEL pose pitch=%1 roll=%2", ypr[1], ypr[2]);
 
 		if (!m_Controller || !m_Controller.IsEngineOn())
 			return;
+
+		LogSuspension(owner);
 
 		float kmh;
 		Physics physics = owner.GetPhysics();

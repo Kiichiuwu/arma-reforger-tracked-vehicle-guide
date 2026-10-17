@@ -15,15 +15,15 @@ The *Leopard* column shows the values of the worked example, the **Leopard 2A6**
 | Attribute | Default | Leopard | Effect |
 | --- | --- | --- | --- |
 | `SolverSubsteps` | — (range 1–20) | 4 | Substeps per frame. With 60 Hz and 4 substeps, dt = 1/240 s |
-| `FrictionCurveLongitudinal` | — | flat curve 1.0 | **Required.** Friction in the direction of travel |
-| `FrictionCurveLateral` | — | flat curve 1.0 | **Required.** Lateral friction |
+| `FrictionCurveLongitudinal` | — | flat curve 1.0 | **Inert.** Never read in 1.8.0.13 (the old friction path is switched off by a constant). Keep it so the vehicle loads ([chapter 18](18-multiplayer.md) has the measurements) |
+| `FrictionCurveLateral` | — | flat curve 1.0 | **Required to load, otherwise inert.** The loader only checks that it has knots (`FrictionCurveLateral - configuration is missing!`) |
 | `FrictionBaseLongitudinal` / `FrictionBaseLateral` | — (range 0–inf) | inherited | Friction base of the old model |
 | `V2FrictionBaseLng` | — | 0.95 (vanilla) | Longitudinal friction of the V2 model |
-| `V2FrictionBaseLat` | — | 2 (vanilla) | Lateral friction of the V2 model |
+| `V2FrictionBaseLat` | — | **1.6** (vanilla 2) | Lateral friction multiplier of the V2 model, the one that runs. The V2 tyre formula is a fixed car tyre (5 kN nominal load) used at 43.7 kN per road wheel, so lateral grip is low; 3 made the 2A6 roll over in hard turns, 1.6 keeps it upright ([chapter 10](10-tuning.md)) |
 | `V2FrictionSurfaceLng` / `V2FrictionSurfaceLat` | `Tread` | Lat = `NonTread` (vanilla) | `Tread` or `NonTread` enum |
 | `V2FrictionSteerEnabled` | true | inherited | Reduces lateral friction when turning |
-| `V2FrictionSteerFactorCurve` | — | vanilla (1 → 0.2) | Friction factor as a function of the turn |
-| `V2FrictionSteerFactorLngCurve` | — | vanilla (1, 0, 1) | Factor by wheel position, from front to rear |
+| `V2FrictionSteerFactorCurve` | — | **1 / 0.35 / 0.08** at 0 / 0.5 / 1 (vanilla 1 → 0.2) | Lateral grip factor as a function of the steering input. The last value sets how hard a pivot turn is |
+| `V2FrictionSteerFactorLngCurve` | — | **1 / 0.5 / 1 / 1** at 0 / 0.25 / 0.5 / 1 (vanilla 1 / 0 / 1) | Lateral grip factor by `TrackPart` index, sampled at index / (n − 1) with n = 13 parts: the 7 road wheels cover 0–0.5. With the vanilla curve the rear road wheel has **no** lateral grip (reverse-engineered, inferred mapping) |
 | `RegenerativeSteering` | — | 1 | Torque goes to the outer track in a turn |
 | `NeutralSteering` | — | 1 | In a pivot turn, the inner track spins backward. Observed on the 2A6: the two tracks counter-rotate |
 | `PivotSteering` | — | 1 | In a pivot turn, the inner track locks. **With 0, the earlier 2A7 build did not turn in place** |
@@ -133,7 +133,7 @@ The order of the `TrackPart` list matters (reverse-engineered from the 1.8.0.13 
 | Attribute | Leopard | Description in the executable | Effect |
 | --- | --- | --- | --- |
 | `Mass` | 62300 | — | Total mass in kg |
-| `CenterOfMass` | `0 1 0.46` | "Offset of center of mass. Relative to one defined in model (if applicable)." | An **offset**, added to the centre of mass defined in the model (a `COM_` point). The 2A6 hull has `COM_hull` at (0, 1.168, −0.381), so its centre of mass is at (0, 2.168, 0.079): 2.17 m above the ground (measured through `WheelGetPosition`). The z offset 0.46 levels the hull: pitch −0.049°, against +0.954° nose-up with `0 1 0`. The y offset was not retuned; 2.17 m is probably too high (open) |
+| `CenterOfMass` | `0 0.2 0.46` | "Offset of center of mass. Relative to one defined in model (if applicable)." | An **offset**, added to the model's `COM_hull` point (1.168 m). Y 0.2 puts the centre of mass about 1.37 m above the ground; with the earlier Y 1 (2.17 m) the 2A6 rolled over in hard turns once the rear road wheels had lateral grip. z 0.46 levels the hull ([chapter 13](13-suspension.md)) |
 | `LinearSleepingThreashold` / `AngularSleepingThreashold` | 0.4 / 0.5 | "Below this linear velocity the body goes to sleep" / "Below this angular velocity the body goes to sleep" | A stopped tank goes to sleep. Telemetry then repeats identical samples; that is the sleep, not a broken logger. The spelling is the engine's |
 
 ### SCR\_TrackedControllerComponent

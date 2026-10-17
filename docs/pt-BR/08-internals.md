@@ -225,11 +225,10 @@ O raio efetivo é a velocidade do casco dividida pelo ω da roda motriz calculad
 
 ### Rede (multiplayer)
 
-O `NwkTrackedMovementComponent` envia os comandos do motorista ao servidor, que os executa de novo. Uma força aplicada por script só na máquina do motorista **não** faz parte desses comandos. No multiplayer, ela também precisa rodar no servidor. Isso vale para a ré por script, que hoje só roda na máquina do motorista.
+O `NwkTrackedMovementComponent` faz do servidor a autoridade: o cliente do motorista prevê o veículo e manda um move a cada quadro (direção, acelerador, freio, freio de mão, marcha, embreagem, ações do motor), o servidor repete, compara e corrige. Duas coisas quebram no caminho: o freio de mão do move vem do stub `IsHandbrakeOn`, então um servidor dedicado nunca gira no lugar, e uma força por script só existe onde foi aplicada. As duas são corrigidas pelo `LEO_TrackedReverseComponent` v5. O que não tem correção: o motorista num cliente fica com a cabeça congelada, olhar lento e comandos presos, uma limitação do motor no caminho do cliente dono de esteira. Medições, endereços e a configuração do Peer Tool estão em [Multiplayer](18-multiplayer.md).
 
-Os scripts visuais são diferentes. O `LEO_RunningGearComponent` (rodas e elos por script) e o `LEO_TrackBeltComponent` (esteiras estáticas) não precisam de replicação: cada máquina lê a própria simulação e move os próprios ossos e as próprias entidades de elo, que são criadas localmente e nunca replicadas. O componente do trem de rolamento pula a atualização dos ossos e dos elos quando o casco está a mais de 300 m da câmera, e não faz nada num servidor dedicado: lá não há atualização de ossos nem elos por script.
+Os scripts visuais (`LEO_RunningGearComponent`, `LEO_TrackBeltComponent`) não precisam de replicação: cada máquina lê a própria simulação e move os próprios ossos e entidades de elo. Medido num cliente do Peer Tool: os dois rodam e os elos aparecem. Num servidor dedicado não fazem nada.
 
-Não testado: o multiplayer como um todo. Em especial, se os getters das rodas devolvem contatos e RPM válidos nos proxies (os clientes dos outros jogadores), se a corrente por script se anima lá e se os proxies rodam o passo da corda nativa.
 
 ---
 

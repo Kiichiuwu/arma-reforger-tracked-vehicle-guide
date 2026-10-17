@@ -1,6 +1,6 @@
 > 🇧🇷 Português · [🇬🇧 English](../en/17-appendix.md)
 
-[← Diagnóstico do veículo e telemetria](16-debugging.md) · [Índice](../../README.pt-BR.md)
+[← Diagnóstico do veículo e telemetria](16-debugging.md) · [Índice](../../README.pt-BR.md) · [Multiplayer →](18-multiplayer.md)
 
 # Apêndice
 
@@ -573,6 +573,21 @@ Corrente de elos (corda):
 | `0x140fbe7f0` | Põe cada entidade de elo no ponto médio de dois pontos da corrente (`EOnPostFrame`) |
 | `0x140fbdf30` | Desenho do diagnóstico. Passa os ponteiros da corda em componente + `0x1638` / `0x1640` para `0x140a41ce0` sem conferir nulo: travamento 2, só quando não existe corrente |
 
+Rede e atrito (acrescentado em 17/10/2026, veja o [capítulo 18](18-multiplayer.md)):
+
+| Endereço | Função |
+| --- | --- |
+| `0x14106c700` | Construtor do `NwkTrackedMovementComponent`: tolerâncias de reconciliação (distância |v|/300 limitada a 0,001–1,5 m, ângulo 0,003, velocidade 0,3, velocidade angular 0,25) |
+| `0x1410743d0` | Despachante de rede por passo: o cliente do motorista produz (`0x141075190`) e é aprovado (`0x1410745f0`) ou corrigido (`0x141074770`); a autoridade processa (`0x141074940`) e consome (`0x14106e4d0`) |
+| `0x140fe5d10` | Gravador do move: direção, acelerador, freio, freio de mão (do stub `IsHandbrakeOn` `0x140fc23c0`), marcha, embreagem, estado da troca |
+| `0x140fe7c70` / `0x140fe4940` | Repetição do move no servidor, no controlador e na simulação; a ligação do `SetBreak` `0x140fc3c10` corta o freio em [0, 1] |
+| `0x14104d8f0` | Comparação, no servidor, do estado dele com o relato do cliente |
+| `0x141076250` / `0x141075cc0` | Correção no cliente e ressimulação nativa dos moves pendentes |
+| `0x141054b50` | Produtor de moves do `NwkCarMovementComponent`, para comparação (36 chamadas contra 31 no de esteira) |
+| `0x1410740b0` / `0x141053790` | Virtual de ligar a simulação, esteira / carro (bit 0x400 de +0xf4; ligar só seta o bit) |
+| `0x140a448a0` / `0x140a410a0` | Força de contato da roda de apoio / pneu Magic Formula fixo; tabela de parâmetros `0x142e57a00`; caminho antigo de atrito desligado pelo byte `0x143b38fd1` |
+| `0x1409dba90` / `0x140ba8310` | Atualização do gerenciador de câmera (câmeras por script só em keyframes) / condutor de keyframes da animação do personagem |
+
 ---
 
-[← Diagnóstico do veículo e telemetria](16-debugging.md) · [Índice](../../README.pt-BR.md)
+[← Diagnóstico do veículo e telemetria](16-debugging.md) · [Índice](../../README.pt-BR.md) · [Multiplayer →](18-multiplayer.md)

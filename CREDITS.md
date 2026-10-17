@@ -72,6 +72,12 @@ bloco de prefab dele não estão mais nos arquivos atuais. Eles continuam no his
 onde seguem sob CC BY-SA 4.0, com crédito a king_st0ne. Houve modificações; o autor original não
 endossa este projeto.
 
+## Multiplayer testers / Testadores de multiplayer
+
+**EN** — RiotShep (first dedicated-server report, 2026-10-16), cAPTAIN_dADDY (2S4 port and MP checks), chilly (server tests), ceo of bacon (the Peer Tool tip). Arma Reforger modding Discord.
+
+**PT** — RiotShep (primeiro relato em servidor dedicado, 16/10/2026), cAPTAIN_dADDY (port para o 2S4 e conferências de MP), chilly (testes em servidor), ceo of bacon (a dica do Peer Tool). Discord de modding do Arma Reforger.
+
 ## Game / Jogo
 
 Arma Reforger and Enfusion are trademarks of Bohemia Interactive a.s. Screenshots and GIFs were

@@ -225,11 +225,10 @@ The effective radius is the hull speed divided by the sprocket ω computed from 
 
 ### Network (multiplayer)
 
-`NwkTrackedMovementComponent` sends the driver's commands to the server, which runs them again. A force applied by script only on the driver's machine is **not** part of these commands. In multiplayer, it must also run on the server. This applies to the scripted reverse, which runs only on the driver's machine today.
+`NwkTrackedMovementComponent` makes the server the authority: the driver's client predicts the vehicle and sends a move every frame (steer, throttle, brake, handbrake, gear, clutch, engine actions), the server replays it, compares and corrects. Two things break on the way: the move's handbrake comes from the stub `IsHandbrakeOn`, so a dedicated server never pivots, and a script force exists only where it is applied. Both are fixed by `LEO_TrackedReverseComponent` v5. What is not fixable: the driver on a client gets a frozen head, sluggish look and sticky inputs, an engine limitation of the tracked owner-client path. Measurements, addresses and the Peer Tool setup are in [Multiplayer](18-multiplayer.md).
 
-Visual scripts are different. `LEO_RunningGearComponent` (wheels and scripted links) and `LEO_TrackBeltComponent` (static belts) need no replication: each machine reads its own simulation and moves its own bones and its own link entities, which are spawned locally and never replicated. The running gear component skips the bone and link updates when the hull is more than 300 m from the camera, and does nothing on a dedicated server: no bone updates and no scripted links there.
+The visual scripts (`LEO_RunningGearComponent`, `LEO_TrackBeltComponent`) need no replication: each machine reads its own simulation and moves its own bones and link entities. Measured on a Peer Tool client: both run and the links show. They do nothing on a dedicated server.
 
-Not tested: multiplayer as a whole. In particular, whether the wheel getters return valid contacts and RPM on proxies (other players' clients), whether the scripted chain animates there, and whether proxies step the native rope.
 
 ---
 

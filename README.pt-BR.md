@@ -26,7 +26,7 @@ obtido por engenharia reversa, observado em vídeo ou não testado.
 
 | | |
 | --- | --- |
-| **Mod no Workshop** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), versão 0.9.0. Um prefab base para você montar os seus próprios tanques. O multiplayer ainda não foi testado |
+| **Mod no Workshop** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), versão 0.9.1. Um prefab base para você montar os seus próprios tanques. Multiplayer: veja o [capítulo 18](docs/pt-BR/18-multiplayer.md) |
 | **GUID do mod** | `7E4ABBD41FEDAC42`. Acrescente em `Dependencies` no seu `addon.gproj` para herdar os prefabs e os scripts do Leopard no seu mod |
 | **Licença do mod** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.pt_BR): use, modifique e republique à vontade, só mantenha os créditos |
 
@@ -54,10 +54,17 @@ para o próximo modder não ter que fazer engenharia reversa de novo.
 | Animação das rodas de apoio, roda-guia, roda motriz e roletes | ✅ Por script (`LEO_RunningGearComponent`). O `CarProcAnimComponent` ❌ entrega às rodas de esteira os sinais de outra roda na 1.8.0.13 ([capítulo 14](docs/pt-BR/14-running-gear.md)) |
 | Elos da esteira | Corda da corrente nativa ⚠️: ela pende (não colide com o chão), sai da roda motriz depois de capotar ou de uma explosão, e não tem API para reiniciar. Corrente por script ✅ (`LEO_TrackChain`): por construção não sai do lugar, mas ainda não foi testada capotando nem com mina ([capítulo 15](docs/pt-BR/15-track-links.md)) |
 | Sobreposição de depuração nativa do veículo | ✅ Rodou num teste de 5 minutos com uma corrente de elos presente. Sem corrente ela derrubou o Workbench em 02/10/2026, provavelmente pela falta da corrente ([capítulo 16](docs/pt-BR/16-debugging.md)) |
-| Multiplayer | ⚠️ Não testado. A ré por script roda na máquina do motorista. Os scripts do trem de rolamento e dos elos são locais e visuais: não rodam num servidor dedicado e não foram testados nas máquinas dos outros jogadores (proxies) |
+| Multiplayer | ⚠️ Em parte. Servidor dedicado: giro no lugar / direção neutra e ré funcionam com o `LEO_TrackedReverseComponent` v5 (o motor descarta o freio de mão do move de rede; o script repõe). **O motorista num cliente** fica com a cabeça congelada, olhar lento e comandos presos: uma limitação do motor no caminho do cliente dono de esteira, sem correção por script. Outros assentos, hosts e singleplayer funcionam ([capítulo 18](docs/pt-BR/18-multiplayer.md)) |
 
 ## O que há de novo nesta edição
 
+- **Multiplayer (17/10/2026).** Um capítulo novo, [Multiplayer](docs/pt-BR/18-multiplayer.md): como o
+  veículo de esteira é replicado, por que um servidor dedicado nunca gira no lugar (o freio de mão é
+  descartado do move de rede), o script de ré v5 que corrige isso, a limitação do motorista em cliente
+  que ele não corrige, e o Peer Tool do Workbench.
+- **Aderência.** `FrictionCurveLongitudinal/Lateral` nunca são lidas no 1.8.0.13; os atributos de
+  atrito V2 são, e a curva de posição vanilla deixa a roda de apoio traseira sem aderência lateral.
+  Reajustado, com o centro de massa mais baixo ([capítulo 10](docs/pt-BR/10-tuning.md)).
 - **Exemplo novo.** Um Leopard 2A6 feito a partir do modelo de buh-late (CC BY 4.0). A primeira
   edição (Leopard 2A7, modelo de king_st0ne) fica no histórico do git, na tag
   [`v1-leopard2a7`](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/tree/v1-leopard2a7).
@@ -107,6 +114,7 @@ para o próximo modder não ter que fazer engenharia reversa de novo.
 | 15 | [Elos da esteira: a corda nativa e a corrente por script](docs/pt-BR/15-track-links.md) *(novo)* |
 | 16 | [Diagnóstico do veículo e telemetria](docs/pt-BR/16-debugging.md) *(novo)* |
 | 17 | [Apêndice](docs/pt-BR/17-appendix.md) |
+| 18 | [Multiplayer](docs/pt-BR/18-multiplayer.md) *(novo)* |
 
 ## Início rápido
 

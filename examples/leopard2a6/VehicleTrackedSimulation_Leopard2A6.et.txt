@@ -66,6 +66,47 @@
       1
      }
     }
+    V2FrictionBaseLat 1.6
+    V2FrictionSteerFactorCurve CurveCubicSplineFloat "{66CD484E225923D1}" {
+     SplineType Linear
+     EndCondition OpenFlat
+     Knots {
+      0
+      0.5
+      1
+     }
+     ParamMin 0
+     ParamMax 1
+     ValueMin 0
+     ValueMax 1
+     UnrestrictedFlags 0
+     Values {
+      1
+      0.35
+      0.08
+     }
+    }
+    V2FrictionSteerFactorLngCurve CurveCubicSplineFloat "{66CD484E2259236D}" {
+     SplineType Linear
+     EndCondition OpenFlat
+     Knots {
+      0
+      0.25
+      0.5
+      1
+     }
+     ParamMin 0
+     ParamMax 1
+     ValueMin 0
+     ValueMax 1
+     UnrestrictedFlags 0
+     Values {
+      1
+      0.5
+      1
+      1
+     }
+    }
     RoadWheel RoadWheel "{379D05FA6C0BDB8F}" {
      Mass 110
      Radius 0.418

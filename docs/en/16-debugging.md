@@ -447,6 +447,10 @@ The component counts every hull child whose model name contains the link model n
 | Editing only the `.xob.meta`, or rewriting an identical `.fbx` | No reimport | Resource Browser → right-click the `.xob` → *Reimport* | Observed |
 | Opening a world | — | Double-click the `.ent` in the Resource Browser. If you drive Workbench through its NET API, opening the `.ent` there opened it as text | Observed |
 
+### Multiplayer on one PC
+
+The Workbench can host the server and launch extra game clients with the **Peer Tool** (Play mode *Server localhost + PeerTool*, plugin configured under *Plugins* → *Settings* → *Peer Tool*). The diag menu has network tools too: *Vehicle Networking and Reconciliation* (input plots, *SimState to CSV*) and *Network Movement* (a vehicle's replication state). Setup, pitfalls and what they showed on the Leopard are in [Multiplayer](18-multiplayer.md).
+
 ### Open questions
 
 - What do `Sim: Paused`, `Substep: 0/25`, `Momentum` and `Energy` report? They never changed while driving. Would they read differently with the native links visible (no scripted chain)?

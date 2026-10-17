@@ -25,7 +25,7 @@ overlay. Each fact is marked as measured, reverse-engineered, observed in video 
 
 | | |
 | --- | --- |
-| **Workshop mod** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), version 0.9.0. A base prefab to build your own tanks on. Multiplayer is not tested yet |
+| **Workshop mod** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), version 0.9.1. A base prefab to build your own tanks on. Multiplayer: see [chapter 18](docs/en/18-multiplayer.md) |
 | **Mod GUID** | `7E4ABBD41FEDAC42`. Add it to `Dependencies` in your `addon.gproj` to inherit the Leopard prefabs and scripts in your own mod |
 | **Mod license** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): use, modify and reupload it freely, just keep the credits |
 
@@ -53,10 +53,17 @@ modder does not have to reverse-engineer it again.
 | Road wheel, idler, sprocket and roller animation | ✅ By script (`LEO_RunningGearComponent`). `CarProcAnimComponent` ❌ gives tracked wheels another wheel's signals in 1.8.0.13 ([chapter 14](docs/en/14-running-gear.md)) |
 | Track links | Native rope chain ⚠️: it sags (no ground collision), comes off the sprocket after a flip or a blast, and has no reset API. Scripted chain ✅ (`LEO_TrackChain`): it cannot derail by construction, but it has not yet been tested through a flip or a mine blast ([chapter 15](docs/en/15-track-links.md)) |
 | Native vehicle debug overlay | ✅ Ran through a 5-minute test with a link chain present. Without a chain it crashed Workbench on 2026-10-02, most likely because the chain was missing ([chapter 16](docs/en/16-debugging.md)) |
-| Multiplayer | ⚠️ Not tested. The scripted reverse runs on the driver's machine. The running gear and link scripts are local and visual: they do not run on a dedicated server, and they are untested on other players' machines (proxies) |
+| Multiplayer | ⚠️ Partly. Dedicated server: pivot / neutral steer and reverse work with `LEO_TrackedReverseComponent` v5 (the engine drops the handbrake from the network move; the script restores it). **The driver on a client** gets a frozen head, sluggish look and sticky inputs: an engine limitation of the tracked owner-client path, not fixable from script. Other seats, listen hosts and singleplayer are fine ([chapter 18](docs/en/18-multiplayer.md)) |
 
 ## What is new in this edition
 
+- **Multiplayer (2026-10-17).** A new chapter, [Multiplayer](docs/en/18-multiplayer.md): how the
+  tracked vehicle is replicated, why a dedicated server never pivots (the handbrake is dropped from
+  the network move), the v5 reverse script that fixes it, the driver-on-a-client limitation that it
+  cannot fix, and the Workbench Peer Tool.
+- **Grip.** `FrictionCurveLongitudinal/Lateral` are never read in 1.8.0.13; the V2 friction attributes
+  are, and their vanilla position curve leaves the rear road wheel with no lateral grip. Retuned, with
+  a lower centre of mass ([chapter 10](docs/en/10-tuning.md)).
 - **New example.** A Leopard 2A6 built from the model by buh-late (CC BY 4.0). The first
   edition (Leopard 2A7, model by king_st0ne) stays in the git history under the tag
   [`v1-leopard2a7`](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/tree/v1-leopard2a7).
@@ -104,6 +111,7 @@ modder does not have to reverse-engineer it again.
 | 15 | [Track links: the native rope chain and the scripted chain](docs/en/15-track-links.md) *(new)* |
 | 16 | [Vehicle debug diag and telemetry](docs/en/16-debugging.md) *(new)* |
 | 17 | [Appendix](docs/en/17-appendix.md) |
+| 18 | [Multiplayer](docs/en/18-multiplayer.md) *(new)* |
 
 ## Quick start
 

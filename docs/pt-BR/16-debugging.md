@@ -447,6 +447,10 @@ As linhas `LEOREV` explicam por que a ré por script empurra ou não (`APPLY for
 | Editar só o `.xob.meta`, ou regravar um `.fbx` idêntico | Sem reimportação | Resource Browser → clique direito no `.xob` → *Reimport* | Observado |
 | Abrir um mundo | — | Clique duas vezes no `.ent` no Resource Browser. Se você controla o Workbench pela API NET dele, abrir o `.ent` por ali o abriu como texto | Observado |
 
+### Multiplayer num PC só
+
+O Workbench consegue hospedar o servidor e abrir clientes extras do jogo com o **Peer Tool** (modo de Play *Server localhost + PeerTool*, plugin configurado em *Plugins* → *Settings* → *Peer Tool*). O menu de diagnóstico também tem ferramentas de rede: *Vehicle Networking and Reconciliation* (gráficos de entrada, *SimState to CSV*) e *Network Movement* (o estado de replicação de um veículo). A configuração, as armadilhas e o que elas mostraram no Leopard estão em [Multiplayer](18-multiplayer.md).
+
 ### Perguntas em aberto
 
 - O que `Sim: Paused`, `Substep: 0/25`, `Momentum` e `Energy` informam? Nunca mudaram andando. Leriam diferente com os elos nativos visíveis (sem corrente por script)?

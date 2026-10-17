@@ -15,15 +15,15 @@ A coluna *Leopard* mostra os valores do exemplo prático, o **Leopard 2A6** (blo
 | Atributo | Padrão | Leopard | Efeito |
 | --- | --- | --- | --- |
 | `SolverSubsteps` | — (faixa 1–20) | 4 | Subpassos por frame. Com 60 Hz e 4 subpassos, dt = 1/240 s |
-| `FrictionCurveLongitudinal` | — | curva plana 1,0 | **Obrigatório.** Atrito no sentido do movimento |
-| `FrictionCurveLateral` | — | curva plana 1,0 | **Obrigatório.** Atrito lateral |
+| `FrictionCurveLongitudinal` | — | curva plana 1,0 | **Inerte.** Nunca é lida no 1.8.0.13 (o caminho antigo de atrito está desligado por uma constante). Mantenha para o veículo carregar (o [capítulo 18](18-multiplayer.md) tem as medições) |
+| `FrictionCurveLateral` | — | curva plana 1,0 | **Obrigatória para carregar, fora isso inerte.** O carregador só confere se ela tem nós (`FrictionCurveLateral - configuration is missing!`) |
 | `FrictionBaseLongitudinal` / `FrictionBaseLateral` | — (faixa 0–inf) | herdado | Base de atrito do modelo antigo |
 | `V2FrictionBaseLng` | — | 0.95 (vanilla) | Atrito longitudinal do modelo V2 |
-| `V2FrictionBaseLat` | — | 2 (vanilla) | Atrito lateral do modelo V2 |
+| `V2FrictionBaseLat` | — | **1.6** (vanilla 2) | Multiplicador do atrito lateral do modelo V2, o que roda de verdade. A fórmula de pneu do V2 é um pneu de carro fixo (carga nominal 5 kN) usado com 43,7 kN por roda de apoio, então a aderência lateral é baixa; 3 fez o 2A6 capotar em curvas fortes, 1.6 o mantém de pé ([capítulo 10](10-tuning.md)) |
 | `V2FrictionSurfaceLng` / `V2FrictionSurfaceLat` | `Tread` | Lat = `NonTread` (vanilla) | Enum `Tread` ou `NonTread` |
 | `V2FrictionSteerEnabled` | true | herdado | Reduz o atrito lateral ao virar |
-| `V2FrictionSteerFactorCurve` | — | vanilla (1 → 0,2) | Fator de atrito em função da curva |
-| `V2FrictionSteerFactorLngCurve` | — | vanilla (1, 0, 1) | Fator pela posição da roda, da frente para trás |
+| `V2FrictionSteerFactorCurve` | — | **1 / 0,35 / 0,08** em 0 / 0,5 / 1 (vanilla 1 → 0,2) | Fator de aderência lateral em função do comando de direção. O último valor define o quanto o giro no lugar é pesado |
+| `V2FrictionSteerFactorLngCurve` | — | **1 / 0,5 / 1 / 1** em 0 / 0,25 / 0,5 / 1 (vanilla 1 / 0 / 1) | Fator de aderência lateral por índice de `TrackPart`, amostrado em índice / (n − 1) com n = 13 peças: as 7 rodas de apoio cobrem 0–0,5. Com a curva vanilla a roda de apoio traseira **não** tem aderência lateral (engenharia reversa, mapeamento deduzido) |
 | `RegenerativeSteering` | — | 1 | O torque vai para a lagarta de fora na curva |
 | `NeutralSteering` | — | 1 | No giro no lugar, a lagarta de dentro gira para trás. Observado no 2A6: as duas lagartas giram em sentidos opostos |
 | `PivotSteering` | — | 1 | No giro no lugar, a lagarta de dentro trava. **Com 0, a versão anterior, do 2A7, não girava no lugar** |
@@ -133,7 +133,7 @@ A ordem da lista de `TrackPart` importa (engenharia reversa do executável 1.8.0
 | Atributo | Leopard | Descrição no executável | Efeito |
 | --- | --- | --- | --- |
 | `Mass` | 62300 | — | Massa total em kg |
-| `CenterOfMass` | `0 1 0.46` | "Offset of center of mass. Relative to one defined in model (if applicable)." | Um **deslocamento**, somado ao centro de massa definido no modelo (um ponto `COM_`). O casco do 2A6 tem `COM_hull` em (0, 1,168, −0,381), então o centro de massa dele fica em (0, 2,168, 0,079): 2,17 m acima do chão (medido pelo `WheelGetPosition`). O deslocamento z de 0,46 nivela o casco: caimento −0,049°, contra +0,954° de nariz para cima com `0 1 0`. O deslocamento y não foi reajustado; 2,17 m provavelmente é alto demais (em aberto) |
+| `CenterOfMass` | `0 0.2 0.46` | "Offset of center of mass. Relative to one defined in model (if applicable)." | Um **deslocamento**, somado ao ponto `COM_hull` do modelo (1,168 m). Y 0.2 põe o centro de massa a cerca de 1,37 m do chão; com o Y 1 anterior (2,17 m) o 2A6 capotava em curvas fortes depois que as rodas de apoio traseiras passaram a ter aderência lateral. z 0.46 nivela o casco ([capítulo 13](13-suspension.md)) |
 | `LinearSleepingThreashold` / `AngularSleepingThreashold` | 0.4 / 0.5 | "Below this linear velocity the body goes to sleep" / "Below this angular velocity the body goes to sleep" | Um tanque parado entra em repouso. A telemetria então repete amostras idênticas; é o repouso, não um registro quebrado. A grafia é a da engine |
 
 ### SCR\_TrackedControllerComponent

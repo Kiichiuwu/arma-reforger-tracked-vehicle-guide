@@ -90,7 +90,7 @@ Notas sobre o trecho:
 - O `LEO_TrackChain.c` não tem componente. O `LEO_RunningGearComponent` cria uma corrente por lagarta.
 - Se você usar os scripts em outro mod, troque o prefixo `LEO_` para que as classes não colidam com o mod do Leopard. O `category: "Leopard2A7"` no `ComponentEditorProps` só agrupa os componentes na lista do editor.
 
-### LEO\_TrackedReverseComponent (ré por script, v4)
+### LEO\_TrackedReverseComponent (ré por script, v5)
 
 A ré nativa prende o motor acima do `RpmMax`, então nenhum torque chega às lagartas ([Bugs e limitações](09-bugs.md)). Este componente aplica uma força para trás no casco enquanto tudo isto vale:
 
@@ -127,7 +127,7 @@ O `m_fSteerTorque` de 900 000 N·m é o valor do 2A6 de 62,3 t. A versão anteri
 
 **Medido no 2A6** (LEOTEL, 05/10/2026 23:19, ré a fundo): de 0 a −20,9 km/h em cerca de 3 s, e −27,8 km/h depois de cerca de 7,6 s. O motor nativo ainda ficou em 3767 rpm em R durante o empurrão. A fórmula do [capítulo 9](09-bugs.md) prevê 3766,1 rpm para 62 300 kg, `Reverse` 2.3, `Ratio` 4.6 e `Inertia` 3.
 
-**Multiplayer:** o empurrão só roda na máquina do motorista. Ele não faz parte dos comandos que o `NwkTrackedMovementComponent` repete no servidor ([Como funciona por dentro](08-internals.md)). Não testado no multiplayer.
+**Multiplayer (v5).** O cliente do motorista manda `{ré, direção, freio de mão}` para o servidor por RPC; o servidor aplica o mesmo empurrão, repõe o freio de mão que o move de rede descarta (`m_bMirrorHandbrake`), afrouxa as tolerâncias de reconciliação durante giro ou ré (`m_bRelaxAllowance`) e desliga o motor só na autoridade. `m_bClientPrediction 0` desliga a ressimulação do cliente (uma chave de experimento). Verificado no Peer Tool do Workbench; ainda não com latência real. O problema de câmera e comandos do motorista em clientes é uma limitação do motor que este componente não corrige. Veja [Multiplayer](18-multiplayer.md).
 
 As mensagens `LEOREV` estão listadas em [Solução de problemas](12-troubleshooting.md).
 

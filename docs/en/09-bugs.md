@@ -62,8 +62,10 @@ The last column says how each item is known:
 | Prefab edits with the world open | The vehicle already in the world keeps its old simulation values. The 2A6 still rode 5 cm high, as with `MaxTravelDown 0.15`, after the prefab said 0.10 | Close the world, reload the scripts with no world open, then open the world again | Measured |
 | Replacing a model (`.fbx`) with the world open | Workbench reimports a `.fbx` automatically when it changes. Replacing the hull model with the world open froze Workbench once (one core at 100%) | Close the World Editor before you replace models. If it freezes, end the process and reopen | Measured |
 | `AICarMovementComponent` in the vanilla base | Warning that `CarControllerComponent` is missing | Harmless for manual driving | Measured |
-| Reverse push by script | In multiplayer, it only runs on the driver's machine | Pending: run it on the server or send it by RPC | Not tested |
-| Scripted running gear and link chain | Visual only, spawned locally. Nothing runs on a dedicated server. Behaviour on other players' machines (proxies) is unknown | Pending: test in multiplayer | Not tested |
+| Reverse push by script | In multiplayer it only ran on the driver's machine: the server's hull stayed put and the client rubberbanded | v5 runs the push on the server too, from the driver's state sent by RPC ([chapter 18](18-multiplayer.md)) | Measured |
+| Handbrake dropped from the network move | On a dedicated server, steering from standstill does nothing: the engine revs and the hull rubberbands. The move's handbrake field comes from the stub `IsHandbrakeOn` and the replay clamps brake 6.0 to 1.0, so the server never enters pivot or neutral-steer mode | v5: the driver's client sends its handbrake, the server restores it with `SetBreak(1, true)` ([chapter 18](18-multiplayer.md)) | Measured + reverse-engineered |
+| The driver on a client | Head frozen, sluggish mouse look at standstill, camera jumps when accelerating and turning, inputs stick. Other seats, the host and singleplayer are fine; a vanilla jeep in the same state is fine | None found: six experiments, including a server-owned vehicle driven from RPC inputs, changed nothing. Reported to Bohemia Interactive ([chapter 18](18-multiplayer.md)) | Measured |
+| Scripted running gear and link chain | Visual only, spawned locally. Nothing runs on a dedicated server | Measured on a Peer Tool client: both run, the links show. Real-server proxies not measured | Measured (client) |
 
 <a id="script-api-rules"></a>
 

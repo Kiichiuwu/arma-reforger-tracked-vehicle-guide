@@ -1,6 +1,6 @@
 > [🇧🇷 Português](../pt-BR/17-appendix.md) · 🇬🇧 English
 
-[← Vehicle debug diag and telemetry](16-debugging.md) · [Contents](../../README.md)
+[← Vehicle debug diag and telemetry](16-debugging.md) · [Contents](../../README.md) · [Multiplayer →](18-multiplayer.md)
 
 # Appendix
 
@@ -573,6 +573,21 @@ Link chain (rope):
 | `0x140fbe7f0` | Places each link entity at the midpoint of two chain points (`EOnPostFrame`) |
 | `0x140fbdf30` | Diag draw. Passes the rope pointers at component + `0x1638` / `0x1640` to `0x140a41ce0` without a null check: crash 2, only when no chain exists |
 
+Network and friction (added 2026-10-17, see [chapter 18](18-multiplayer.md)):
+
+| Address | Function |
+| --- | --- |
+| `0x14106c700` | `NwkTrackedMovementComponent` constructor: reconciliation allowances (distance |v|/300 clamped to 0.001–1.5 m, angle 0.003, linear velocity 0.3, angular velocity 0.25) |
+| `0x1410743d0` | Per-step network dispatcher: driver's client produces (`0x141075190`) and is approved (`0x1410745f0`) or corrected (`0x141074770`); authority processes (`0x141074940`) and consumes (`0x14106e4d0`) |
+| `0x140fe5d10` | Move recorder: steer, throttle, brake, handbrake (from the stub `IsHandbrakeOn` `0x140fc23c0`), gear, clutch, shift state |
+| `0x140fe7c70` / `0x140fe4940` | Server replay of a move into the controller and the simulation; `SetBreak` binding `0x140fc3c10` clamps the brake to [0, 1] |
+| `0x14104d8f0` | Server comparison of its state with the client's report |
+| `0x141076250` / `0x141075cc0` | Client correction and native re-simulation of the pending moves |
+| `0x141054b50` | `NwkCarMovementComponent` move producer, for comparison (36 calls against 31 in the tracked one) |
+| `0x1410740b0` / `0x141053790` | Tracked / car simulation-enable virtual (bit 0x400 of +0xf4; enabling only sets the bit) |
+| `0x140a448a0` / `0x140a410a0` | Road wheel contact force / fixed Magic Formula tyre; parameter table `0x142e57a00`; old friction path disabled by the byte `0x143b38fd1` |
+| `0x1409dba90` / `0x140ba8310` | Camera handler update (scripted cameras only on keyframes) / character animation keyframe driver |
+
 ---
 
-[← Vehicle debug diag and telemetry](16-debugging.md) · [Contents](../../README.md)
+[← Vehicle debug diag and telemetry](16-debugging.md) · [Contents](../../README.md) · [Multiplayer →](18-multiplayer.md)

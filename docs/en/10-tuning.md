@@ -71,6 +71,8 @@ The two measurements give 2.18°/m. The model puts the exact level at a z offset
 
 **Open:** the Y offset of 1 was kept from earlier builds and has not been retuned. It puts the 2A6's centre of mass 2.17 m above the ground, about 0.47 m above the hull roof. Half the track gauge divided by that height gives a static stability factor of 0.61 g; with a Y offset of 0 (1.17 m) it would be 1.14 g (computed). One test run flipped at 33–41 km/h. Whether the high centre of mass caused it is not proven. The diag's *Show CoM* entry should draw the point (not tried).
 
+**Update (2026-10-17).** The Y offset was lowered to 0.2 (`CenterOfMass 0 0.2 0.46`), which puts the centre of mass about 1.37 m above the ground and raises the static stability factor to about 0.97 g. The trigger was the grip rework in section 9b: once the rear road wheels had lateral grip, the 2A6 rolled over in a hard turn at speed with the old 2.17 m centre of mass. The pitch at rest did not change (it depends on z only).
+
 **Open:** which point the engine uses when a model has no `COM_` point (collider centroid or model origin) is not known.
 
 ### 2. Engine
@@ -264,6 +266,26 @@ What happened on the 2A6:
 | 0.2110 | \~0 (`MaxTravelDown 0.10`) | 12 cm of slack hung below the road wheels and behind the sprocket. After a mine blast it came off again |
 
 No single `TrackLength` keeps the native rope tight at rest and long enough at full droop. The 2A6 keeps `TrackLength 0.2110`, hides the native links and draws the scripted chain (`LEO_TrackChain`). The scripted chain spaces its links at path length / *N*, so the spacing follows the path: 0.2094 m at rest, 0.2110 m with all wheels at 10 cm droop, up to about 0.219 m with one middle wheel at full bump (about 4% stretch).
+
+### 9b. Grip: the V2 friction attributes
+
+`FrictionCurveLongitudinal` and `FrictionCurveLateral` are never read in 1.8.0.13 (reverse-engineered: the old friction path is switched off by a constant; only the lateral curve's existence is checked at load). The grip that runs is the "V2" model:
+
+- each road wheel contact evaluates a **fixed car-tyre formula** (Magic Formula 5.2, nominal load 5 kN) with the wheel load, the slip ratio and the slip angle (`0x140a448a0`, tyre function `0x140a410a0`);
+- the longitudinal force is multiplied by 2 × the surface's `FrictionTread` × `V2FrictionBaseLng`, the lateral force by 2 × `FrictionNonTread` × `V2FrictionBaseLat`;
+- the lateral force is further multiplied by `V2FrictionSteerFactorCurve(|steering|)` and by `V2FrictionSteerFactorLngCurve(index / (n − 1))`, n = 13 `TrackPart`s per track.
+
+At the Leopard's 43.7 kN per road wheel the car tyre is far outside its range: its lateral grip collapses to about 0.15–0.27 × load while the longitudinal grip still reaches 0.92 × load (computed from the transcribed formula). The vanilla position curve (1 / 0 / 1 at 0 / 0.5 / 1) maps the 7 road wheels to 0–0.5, so the rear road wheel gets **no** lateral grip at all. That was the "driving on ice" of the first Workshop tests: the rear slid out.
+
+The 2A6 now uses:
+
+| Attribute | Vanilla | Leopard 2A6 | Why |
+| --- | --- | --- | --- |
+| `V2FrictionSteerFactorLngCurve` | 1 / 0 / 1 at 0 / 0.5 / 1 | 1 / 0.5 / 1 / 1 at 0 / 0.25 / 0.5 / 1 | Symmetric over the road wheels: the rear holds as well as the front |
+| `V2FrictionBaseLat` | 2 | 1.6 | 3 rolled the tank over in hard turns (lateral grip up to about 1.06 × weight on asphalt against a 0.97 g stability factor); 2.5 still did; 1.6 keeps it upright with about 26% more average lateral grip than vanilla |
+| `V2FrictionSteerFactorCurve` | 1 → 0.2 | 1 / 0.35 / 0.08 at 0 / 0.5 / 1 | Less grip with the steering applied, so the pivot stays about as easy as before and mid-steering turns are more agile |
+
+Tuning order: set the position curve first (it fixes the asymmetry), then `V2FrictionBaseLat` for the sideways hold, then the last value of the steering curve if pivots get sluggish on grass (lower it). Test a hard turn at 35–40 km/h, a quick lane change, a side slope and a pivot after every change. None of these values were measured against the per-wheel debug table; they come from the model and from the roll-over tests.
 
 ### 10. Measure with telemetry
 

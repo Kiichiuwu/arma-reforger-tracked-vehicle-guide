@@ -90,7 +90,7 @@ Notes on the snippet:
 - `LEO_TrackChain.c` holds no component. `LEO_RunningGearComponent` creates one chain per track.
 - If you use the scripts in another mod, rename the `LEO_` prefix so the classes do not collide with the Leopard mod. The `category: "Leopard2A7"` in `ComponentEditorProps` only groups the components in the editor's list.
 
-### LEO\_TrackedReverseComponent (scripted reverse, v4)
+### LEO\_TrackedReverseComponent (scripted reverse, v5)
 
 The native reverse pins the engine above `RpmMax`, so no torque reaches the tracks ([Bugs and limitations](09-bugs.md)). This component applies a backward force to the hull while all of these hold:
 
@@ -127,7 +127,7 @@ On the 2A6: 3000 / (2.3 · 4.6) · 0.10472 · 0.34 · 3.6 ≈ 36.3 km/h. The scr
 
 **Measured on the 2A6** (LEOTEL, 2026-10-05 23:19, full reverse input): 0 to −20.9 km/h in about 3 s, and −27.8 km/h after about 7.6 s. The native engine still settled at 3767 rpm in R during the push. The formula in [chapter 9](09-bugs.md) predicts 3766.1 rpm for 62 300 kg, `Reverse` 2.3, `Ratio` 4.6 and `Inertia` 3.
 
-**Multiplayer:** the push runs only on the driver's machine. It is not part of the commands that `NwkTrackedMovementComponent` replays on the server ([How it works inside](08-internals.md)). Not tested in multiplayer.
+**Multiplayer (v5).** The driver's client sends `{reverse, steer, handbrake}` to the server by RPC; the server applies the same push, restores the handbrake that the network move drops (`m_bMirrorHandbrake`), relaxes the reconciliation allowances while pivoting or reversing (`m_bRelaxAllowance`) and stops the engine on the authority only. `m_bClientPrediction 0` switches the client's re-simulation off (an experiment switch). Verified in the Workbench Peer Tool; not yet under real latency. The driver's camera and input problem on clients is an engine limitation that this component cannot fix. See [Multiplayer](18-multiplayer.md).
 
 The `LEOREV` messages are listed in [Troubleshooting](12-troubleshooting.md).
 

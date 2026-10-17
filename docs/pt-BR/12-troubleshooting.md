@@ -43,6 +43,9 @@ As linhas vêm do trabalho com o Leopard no Workbench 1.8.0.13: a versão anteri
 | Acelerador a fundo, o motor fica em 700 rpm e o tanque mal se mexe | O tanque está travado ou encalhado numa pedra, com só 1–5 rodas de apoio por lado tocando o chão (medido) | Saia de ré. Comportamento esperado |
 | O tanque capota fácil em velocidade | Talvez o centro de massa alto: o `CenterOfMass` é um deslocamento somado ao ponto COM do próprio modelo. No 2A6, `0 1 0.46` põe o COM 2,17 m acima do chão, com um fator de estabilidade estática de cerca de 0,61 g (calculado, não provado) | Baixe o deslocamento Y (Y 0 daria cerca de 1,14 g). Ainda não testado ([capítulo 13](13-suspension.md)) |
 | O tanque parado escorrega devagar numa ladeira | Não resolvido. Um caso registrado: 0,3–0,4 km/h por 2,6 s numa rampa de \~6° com o freio em 6,0 | Em aberto |
+| Num servidor dedicado, virar parado não faz nada; o motor acelera e o casco faz rubberband | O move de rede descarta o freio de mão (`IsHandbrakeOn` é um stub), então o servidor nunca gira (medido) | `LEO_TrackedReverseComponent` v5 com `m_bMirrorHandbrake 1` ([capítulo 18](18-multiplayer.md)) |
+| A ré faz rubberband num servidor | O empurrão por script só rodava na máquina do motorista | v5 ([capítulo 18](18-multiplayer.md)) |
+| Como motorista num cliente: cabeça congelada, olhar lento parado, câmera pula ao acelerar e virar, teclas presas | Limitação do motor no caminho do cliente dono de esteira. Não é causada pelos scripts do mod (medido com tudo removido) | Nenhuma. Singleplayer, host e os outros assentos funcionam ([capítulo 18](18-multiplayer.md)) |
 
 ### Suspensão e altura do casco
 

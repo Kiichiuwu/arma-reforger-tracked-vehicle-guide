@@ -71,6 +71,8 @@ As duas medições dão 2,18°/m. O modelo põe o nível exato num deslocamento 
 
 **Em aberto:** o deslocamento Y de 1 veio de versões anteriores e não foi reajustado. Ele põe o centro de massa do 2A6 2,17 m acima do chão, cerca de 0,47 m acima do teto do casco. Meia bitola dividida por essa altura dá um fator de estabilidade estática de 0,61 g; com deslocamento Y de 0 (1,17 m) daria 1,14 g (calculado). Numa rodada de teste o tanque capotou a 33–41 km/h. Não está provado que o centro de massa alto foi a causa. A entrada *Show CoM* do diagnóstico deve desenhar o ponto (não testado).
 
+**Atualização (17/10/2026).** O deslocamento Y foi baixado para 0.2 (`CenterOfMass 0 0.2 0.46`), o que põe o centro de massa a cerca de 1,37 m do chão e sobe o fator de estabilidade estática para cerca de 0,97 g. O gatilho foi a reforma da aderência na seção 9b: quando as rodas de apoio traseiras passaram a ter aderência lateral, o 2A6 capotou numa curva forte em velocidade com o centro de massa antigo de 2,17 m. A inclinação parado não mudou (ela depende só do z).
+
 **Em aberto:** qual ponto o motor usa quando o modelo não tem ponto `COM_` (centroide do colisor ou origem do modelo) não se sabe.
 
 ### 2. Motor
@@ -264,6 +266,26 @@ O que aconteceu no 2A6:
 | 0.2110 | \~0 (`MaxTravelDown 0.10`) | 12 cm de folga penderam abaixo das rodas de apoio e atrás da roda motriz. Depois de uma explosão de mina saiu de novo |
 
 Nenhum `TrackLength` sozinho mantém a corda nativa esticada parada e comprida o bastante no curso todo para baixo. O 2A6 mantém `TrackLength 0.2110`, esconde os elos nativos e desenha a corrente por script (`LEO_TrackChain`). A corrente por script espaça os elos em comprimento do caminho / *N*, então o espaçamento acompanha o caminho: 0,2094 m parado, 0,2110 m com todas as rodas caídas 10 cm, e até cerca de 0,219 m com uma roda do meio no batente de cima (cerca de 4% de esticamento).
+
+### 9b. Aderência: os atributos de atrito V2
+
+`FrictionCurveLongitudinal` e `FrictionCurveLateral` nunca são lidas no 1.8.0.13 (engenharia reversa: o caminho antigo de atrito está desligado por uma constante; só a existência da curva lateral é conferida no carregamento). A aderência que roda é o modelo "V2":
+
+- cada contato de roda de apoio avalia uma **fórmula fixa de pneu de carro** (Magic Formula 5.2, carga nominal 5 kN) com a carga da roda, a razão de deslizamento e o ângulo de deriva (`0x140a448a0`, função do pneu `0x140a410a0`);
+- a força longitudinal é multiplicada por 2 × o `FrictionTread` da superfície × `V2FrictionBaseLng`, a lateral por 2 × `FrictionNonTread` × `V2FrictionBaseLat`;
+- a força lateral ainda é multiplicada por `V2FrictionSteerFactorCurve(|direção|)` e por `V2FrictionSteerFactorLngCurve(índice / (n − 1))`, n = 13 `TrackPart` por lagarta.
+
+Com os 43,7 kN por roda de apoio do Leopard, o pneu de carro está muito fora da faixa dele: a aderência lateral despenca para cerca de 0,15–0,27 × carga enquanto a longitudinal ainda chega a 0,92 × carga (calculado pela fórmula transcrita). A curva de posição vanilla (1 / 0 / 1 em 0 / 0,5 / 1) mapeia as 7 rodas de apoio em 0–0,5, então a roda de apoio traseira fica **sem nenhuma** aderência lateral. Esse era o "dirigir no gelo" dos primeiros testes do Workshop: a traseira escorregava.
+
+O 2A6 agora usa:
+
+| Atributo | Vanilla | Leopard 2A6 | Por quê |
+| --- | --- | --- | --- |
+| `V2FrictionSteerFactorLngCurve` | 1 / 0 / 1 em 0 / 0,5 / 1 | 1 / 0,5 / 1 / 1 em 0 / 0,25 / 0,5 / 1 | Simétrica nas rodas de apoio: a traseira segura tanto quanto a frente |
+| `V2FrictionBaseLat` | 2 | 1.6 | 3 capotou o tanque em curvas fortes (aderência lateral até cerca de 1,06 × peso no asfalto contra um fator de estabilidade de 0,97 g); 2.5 ainda capotava; 1.6 o mantém de pé com cerca de 26% mais aderência lateral média que o vanilla |
+| `V2FrictionSteerFactorCurve` | 1 → 0,2 | 1 / 0,35 / 0,08 em 0 / 0,5 / 1 | Menos aderência com a direção aplicada, então o giro continua tão fácil quanto antes e as curvas com meia direção ficam mais ágeis |
+
+Ordem de ajuste: primeiro a curva de posição (ela corrige a assimetria), depois o `V2FrictionBaseLat` para a sustentação lateral, depois o último valor da curva de direção se o giro ficar lento na grama (baixe). Teste uma curva forte a 35–40 km/h, uma troca de faixa rápida, uma rampa lateral e um giro depois de cada mudança. Nenhum desses valores foi medido contra a tabela de depuração por roda; eles vêm do modelo e dos testes de capotamento.
 
 ### 10. Meça com a telemetria
 

@@ -22,8 +22,8 @@ A última coluna diz como cada item é conhecido:
 
 | Problema | Sintoma | Contorno | Evidência |
 | --- | --- | --- | --- |
-| **A ré nativa está quebrada** | O motor sobe acima de `RpmMax` e nenhum torque chega às lagartas. Numa descida, só a gravidade move o tanque | Script que empurra o casco (`LEO_TrackedReverseComponent`, [Scripts prontos](11-scripts.md)) + `ThrottleReverseTarget 1`. Detalhes [abaixo](#reverse-in-detail) | Medido + engenharia reversa |
-| O motorista sai com o motor ligado | Sem motorista, o controlador puxa o freio de mão (freio 6,0). Parado, ele então seleciona a ré (marcha 0, embreagem 1), e o bug da ré prende o motor em cerca de 4500 rpm com o tanque estacionado | `m_bStopEngineOnExit` (padrão 1) no `LEO_TrackedReverseComponent` desliga o motor quando o banco do motorista fica vazio. O log mostra `LEOREV driver left: engine stopped` | Medido |
+| **A ré nativa está quebrada** | O motor sobe acima de `RpmMax` e nenhum torque chega às lagartas. Numa descida, só a gravidade move o tanque | Script que empurra o casco (`LEO_TrackedDriveComponent`, antes `LEO_TrackedReverseComponent`, [Scripts prontos](11-scripts.md)) + `ThrottleReverseTarget 1`. Detalhes [abaixo](#reverse-in-detail) | Medido + engenharia reversa |
+| O motorista sai com o motor ligado | Sem motorista, o controlador puxa o freio de mão (freio 6,0). Parado, ele então seleciona a ré (marcha 0, embreagem 1), e o bug da ré prende o motor em cerca de 4500 rpm com o tanque estacionado | `m_bStopEngineOnExit` (padrão 1) no `LEO_TrackedDriveComponent` desliga o motor quando o banco do motorista fica vazio | Medido |
 | `ThrottleReverseTarget` abaixo de 1 | Ao segurar S parado, o tanque anda **para a frente** | Use `ThrottleReverseTarget 1` | Medido (2A7) |
 | `.ct` vanilla incompleto | `Tracked - failed to load!` | Acrescente curvas de atrito, modelos de roda e lagartas | Medido (2A7) |
 | Retardador padrão | Velocidade máxima travada em \~51–54 km/h | `RetarderBaseTorque 0`, `RetarderThrottleSpeed 20` | Medido (2A7) |
@@ -124,6 +124,8 @@ Com `ThrottleReverseTarget` abaixo de 1, o motor produz torque negativo. Multipl
 A fórmula acima prevê o patamar de 3766–3768 das duas primeiras linhas. Os valores mais altos com o freio aplicado ainda não têm explicação.
 
 ### O contorno usado no Leopard
+
+Esta seção descreve o `LEO_TrackedReverseComponent` v4/v5, com que as medições abaixo foram feitas. Desde 2026-10-20 o `LEO_TrackedDriveComponent` aplica o mesmo empurrão no servidor ([Scripts prontos](11-scripts.md)).
 
 O `LEO_TrackedReverseComponent` aplica uma força para trás no casco quando tudo isto vale:
 

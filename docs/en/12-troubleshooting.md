@@ -34,7 +34,7 @@ The rows come from the Leopard work in Workbench 1.8.0.13: the earlier 2A7 build
 | Top speed far off from the calculation | Calculation used the road wheel radius | Redo it with the drive sprocket radius. On the 2A6, speed ÷ sprocket angular speed gave 0.344 m against `Sprocket.Radius` 0.34 (measured) |
 | Very slow acceleration | High `Friction`, high `Inertia` or a long first gear | `Friction` \~10% of the torque; shorten 1st gear |
 | W never reaches 100% | `ThrottleTurbo` 0.2 | Normal; use turbo |
-| S at a standstill: the engine revs above `RpmMax` and nothing happens | Native reverse bug (on the 2A6 the engine sticks at 3766–3768 rpm) | [`LEO_TrackedReverseComponent`](11-scripts.md) |
+| S at a standstill: the engine revs above `RpmMax` and nothing happens | Native reverse bug (on the 2A6 the engine sticks at 3766–3768 rpm) | [`LEO_TrackedDriveComponent`](11-scripts.md) |
 | S at a standstill: the tank moves forward | `ThrottleReverseTarget` below 1 | `ThrottleReverseTarget 1` |
 | Downhill it holds reverse speed, but on flat ground it does not move | Reverse bug: only gravity moves it | Reverse script |
 | The engine stays at about 4500 rpm after the driver gets out | Without a driver the controller pulls the handbrake and, at a standstill, selects reverse; the reverse bug then pins the engine (observed on the 2A6) | `m_bStopEngineOnExit 1` in the reverse script (v4) |
@@ -43,7 +43,7 @@ The rows come from the Leopard work in Workbench 1.8.0.13: the earlier 2A7 build
 | Full throttle, the engine sits at 700 rpm and the tank barely moves | The tank is blocked or high-centred on a rock, with only 1–5 road wheels per side touching the ground (measured) | Reverse out. Expected behaviour |
 | The tank flips easily at speed | Possibly a high centre of mass: `CenterOfMass` is an offset added to the model's own COM point. On the 2A6, `0 1 0.46` puts the COM 2.17 m above the ground, for a static stability factor of about 0.61 g (computed, not proven) | Lower the Y offset (Y 0 would give about 1.14 g). Not tested yet ([chapter 13](13-suspension.md)) |
 | Stopped tank slowly slides down a slope | Not solved. One logged case: 0.3–0.4 km/h for 2.6 s on a \~6° slope with the brake at 6.0 | Open |
-| On a dedicated server, steering from standstill does nothing; the engine revs and the hull rubberbands | The network move drops the handbrake (`IsHandbrakeOn` is a stub), so the server never pivots (measured) | `LEO_TrackedReverseComponent` v5 with `m_bMirrorHandbrake 1` ([chapter 18](18-multiplayer.md)) |
+| On a dedicated server, steering from standstill does nothing; the engine revs and the hull rubberbands | The network move drops the handbrake (`IsHandbrakeOn` is a stub), so the server never pivots (measured) | `LEO_TrackedDriveComponent` (the server applies `SetBreak(x, true)` itself), or Kiichi Tracked System ([chapter 18](18-multiplayer.md), [chapter 19](19-kiichi-tracked-system.md)) |
 | Reverse rubberbands on a server | The scripted push ran only on the driver's machine | v5 ([chapter 18](18-multiplayer.md)) |
 | As the driver on a client: head frozen, sluggish look at standstill, camera jumps when accelerating and turning, keys stick | Engine limitation of the tracked owner-client path. Not caused by the mod scripts (measured with everything removed) | None. Singleplayer, listen host and the other seats work ([chapter 18](18-multiplayer.md)) |
 

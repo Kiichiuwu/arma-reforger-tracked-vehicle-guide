@@ -9,7 +9,7 @@ flowchart TD
   IN["Driver inputs<br/>TrackedThrottle, TrackedBrake, Steering L/R<br/>Turbo, HandBrake, EngineStart/Stop"]
   NWK["NwkTrackedMovementComponent<br/>sends the commands to the server,<br/>which replays them (multiplayer)"]
   CTL["SCR_TrackedControllerComponent<br/>W = 80% throttle; turbo = 100%<br/>S at a standstill engages reverse by itself<br/>picks gear, clutch and shifts"]
-  REV["LEO_TrackedReverseComponent (script)<br/>workaround for the broken reverse:<br/>S at a standstill pushes the hull backward"]
+  REV["LEO_TrackedDriveComponent (script)<br/>server-side driving + workaround for the broken reverse:<br/>S at a standstill pushes the hull backward"]
   subgraph VTS["VehicleTrackedSimulation"]
     subgraph SIM["Simulation Tracked"]
       ENG["Engine<br/>torque curve, zero at RpmMax"] --> CLU["Clutch<br/>factor from 0 to 1"]
@@ -61,7 +61,7 @@ The driver never talks to the simulation directly. The controller reads the keys
 4. **Forces.** The wheel forces act on the `RigidBody`. `CenterOfMass` on the `RigidBody` is an offset from the model's own centre of mass, not an absolute position (reverse-engineered, then measured).
 5. **Native link chain.** If the chain attributes are set, the simulation moves each track's chain as a 2D rope: fixed substeps of 0.0083 s, each with 25 passes of link-length and wheel-circle constraints, under gravity. Only the sprocket drives it, and nothing makes it collide with the ground. Each frame, in `EOnPostFrame`, one link entity is placed between each pair of neighbouring chain points (reverse-engineered). See [Track links](15-track-links.md).
 6. **Scripts.** `LEO_RunningGearComponent` reads the simulation through `TrackedControllerComponent.GetSimulation()` in `EOnFrame`. It moves the suspension and wheel bones, spins the idler, sprocket and rollers, and lets `LEO_TrackChain` place its own links on a path around the wheels. It hides the rope's links. `LEO_TrackBeltComponent` hides the hull's static belt meshes once link entities exist. These scripts are visual and local: they do not feed back into the physics. See [Road wheels, idler, sprocket and return rollers](14-running-gear.md).
-7. **Reverse.** `LEO_TrackedReverseComponent` is the only script that acts on the physics. While the driver reverses, it pushes the hull backwards with a force.
+7. **Reverse and multiplayer.** `LEO_TrackedDriveComponent` is the only script that acts on the physics. While the driver reverses, it pushes the hull backwards with a force; in multiplayer it applies the driver's inputs to the simulation on the server ([chapter 18](18-multiplayer.md)). Kiichi Tracked System replaces this whole diagram with one script component ([chapter 19](19-kiichi-tracked-system.md)).
 
 Open: the scripts update in `EOnFrame` and the native rope places its links in `EOnPostFrame`. A one-frame lag between the scripted bones and the physics is possible but has not been measured.
 
@@ -98,7 +98,7 @@ The Leopard lists each track as `Wheel_X01`..`Wheel_X07` (parts 0-6), `Idler_X` 
 | `CarProcAnimComponent` `{5D6501223785D009}` | Hull `components` (inherited, empty in the base) | Leave it empty on tracked vehicles: in 1.8.0.13 it gives the wheel bones another wheel's signals |
 | `LEO_RunningGearComponent` (script, uses the class `LEO_TrackChain`) | Hull `components` | Suspension and spin of the wheel bones; the scripted link chain; hides the rope's links |
 | `LEO_TrackBeltComponent` (script) | Hull `components` | Hides the static belt meshes once at least 2 link entities exist; keeps them if no links appear within 5 s |
-| `LEO_TrackedReverseComponent` (script) | Hull `components` | Reverse workaround; stops the engine when the driver seat becomes empty |
+| `LEO_TrackedDriveComponent` (script) | Hull `components` | Reverse workaround and server-side driving; stops the engine when the driver seat becomes empty |
 | `LEO_TelemetryComponent` (script) | Hull `components` | `LEOTEL` and `LEOSUSP` lines in `console.log` for tuning |
 
 The engine components come ready-made in `TrackedVehicle_Base.et`. What is left is to fill in the simulation and the link chain attributes, as the [step-by-step guide](04-from-scratch.md) shows, and to add the scripts from [Ready-made scripts](11-scripts.md). The Leopard's blocks are in [examples/leopard2a6](../../examples/leopard2a6/README.md).

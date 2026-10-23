@@ -1,23 +1,24 @@
 > [🇧🇷 Português](../pt-BR/18-multiplayer.md) · 🇬🇧 English
 
-[← Appendix](17-appendix.md) · [Contents](../../README.md)
+[← Appendix](17-appendix.md) · [Contents](../../README.md) · [Kiichi Tracked System →](19-kiichi-tracked-system.md)
 
 # Multiplayer
 
 This chapter covers what happens to a native tracked vehicle when a player drives it from a client: how the engine replicates it, the bug that stops pivot and neutral steering on servers, the fix in the Leopard scripts, and the engine limitation that is left. It also explains how to test multiplayer on one PC with the Workbench Peer Tool.
 
-Everything was tested on 2026-10-16 and 2026-10-17 with Workbench 1.8.0.13 (Workbench as server plus one Peer Tool client), after a first report from a tester on a dedicated server. Each fact says how it is known: **measured** (logs), **reverse-engineered** (`ArmaReforgerWorkbenchSteamDiag.exe` 1.8.0.13, addresses in the [Appendix](17-appendix.md)), **observed** or **not tested**.
+The first part was tested on 2026-10-16 and 2026-10-17 with Workbench 1.8.0.13 (Workbench as server plus one Peer Tool client), after a first report from a tester on a dedicated server. Each fact says how it is known: **measured** (logs), **reverse-engineered** (`ArmaReforgerWorkbenchSteamDiag.exe` 1.8.0.13, addresses in the [Appendix](17-appendix.md)), **observed** or **not tested**. The section [v6: the server drives](#v6-the-server-drives-leo_trackeddrivecomponent) and the replication rules after it were measured on 2026-10-20/21 with automated dedicated-server + client runs of the game (no Workbench).
 
 ### In short
 
 | Situation | Status |
 | --- | --- |
 | Singleplayer, or a listen host driving its own tank | ✅ Works as in the rest of this guide |
-| Dedicated server, pivot / neutral steer from standstill | ❌ Native: the server never pivots, the client rubberbands. ✅ Fixed by `LEO_TrackedReverseComponent` v5 (the client sends its handbrake, the server restores it) |
-| Dedicated server, reverse | ❌ Native: the scripted push ran only on the driver's machine. ✅ v5 runs it on the server too |
+| Dedicated server, pivot / neutral steer from standstill | ❌ Native: the server never pivots, the client rubberbands. ✅ Fixed by `LEO_TrackedReverseComponent` v5 (the client sends its handbrake, the server restores it), and since v6 by `LEO_TrackedDriveComponent` (the server applies the handbrake itself) |
+| Dedicated server, reverse | ❌ Native: the scripted push ran only on the driver's machine. ✅ v5 runs it on the server too; v6 runs it only on the server |
 | Dedicated server, driving forward and turning at speed | ✅ Works natively |
-| Dedicated server, the **driver** on a client | ⚠️ Engine limitation: the driver's head does not animate, mouse look is sluggish while stationary, the camera jumps under acceleration and turning, and inputs can stick. Not fixable from script (see below) |
+| Dedicated server, the **driver** on a client | ⚠️ Engine limitation: the driver's head does not animate, mouse look is sluggish while stationary, the camera jumps under acceleration and turning, and inputs can stick. Not fixable inside the native client path. v6 keeps the vehicle on the server so that path never runs; whether that removes the symptoms has not been checked by a person yet (see below) |
 | Other seats on a client (turret) | ✅ Normal |
+| Kiichi Tracked System (scripted simulation, no native one) | ✅ Server authoritative by design; measured with the driver on a client ([chapter 19](19-kiichi-tracked-system.md)) |
 | Scripted running gear and link chain on clients | ✅ Animate on the driver's client and on other clients (measured on the peer: `LEOGEAR` and `LEOTRACK` lines, links visible). Nothing runs on a dedicated server by design |
 
 ### How a tracked vehicle is replicated
@@ -55,7 +56,7 @@ A force applied by script exists only where it is applied. v4 pushed only on the
 
 ### The fix: LEO\_TrackedReverseComponent v5
 
-[`scripts/LEO_TrackedReverseComponent.c`](../../scripts/LEO_TrackedReverseComponent.c) now has three roles:
+[`scripts/LEO_TrackedReverseComponent.c`](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/blob/v2.1-leopard2a6-mp/scripts/LEO_TrackedReverseComponent.c) now has three roles:
 
 | Machine | What it does |
 | --- | --- |
@@ -92,7 +93,37 @@ What was tried, each in a separate run, with no change in the symptoms:
 
 Where it comes from (reverse-engineered, partly): the owner-client move producers of `NwkCarMovementComponent` (`0x141054b50`, 36 calls) and `NwkTrackedMovementComponent` (`0x141075190`, 31 calls) have almost nothing in common, and 1.8.0.13 ships no tracked vehicle that would have exercised the tracked one. The controller ticks (`0x140fd8760` car, `0x140fe60f0` tracked) and the input readers are structurally identical, and the network component constructors write the same defaults. The exact missing piece was not found. It was reported to Bohemia Interactive with these addresses.
 
-Practical consequence: native tracked vehicles are fine for singleplayer, listen hosts and every seat except the driver's on dedicated servers. For a vehicle that must be driven from clients today, the wheeled simulation (as the published tank mods use) is the only path.
+Practical consequence (2026-10-17): native tracked vehicles were fine for singleplayer, listen hosts and every seat except the driver's on dedicated servers. Two later answers follow: v6 below, which keeps the native simulation but never lets the driver's client predict it, and Kiichi Tracked System ([chapter 19](19-kiichi-tracked-system.md)), which does not use the native simulation at all.
+
+### v6: the server drives (LEO\_TrackedDriveComponent)
+
+Experiment 6 above already gave the vehicle back to the server, and the native controller still fought the RPC inputs. v6 adds what was missing, and replaces `LEO_TrackedReverseComponent` ([`scripts/LEO_TrackedDriveComponent.c`](../../scripts/LEO_TrackedDriveComponent.c), attributes in [chapter 11](11-scripts.md)):
+
+| Problem (measured) | v6 |
+| --- | --- |
+| The engine gives the vehicle to the driver's client when they sit in, and the client then predicts it on the unfinished path | The server takes it back, once and asynchronously: `RplComponent.GiveExt(RplIdentity.Local(), false)`. The driver's client is a plain proxy, like a passenger |
+| The server accepts `RplRcver.Server` RPCs only from the **owner** of the replicated item. A server-owned vehicle has no owner on the driver's machine | The inputs travel through the driver's own `SCR_PlayerController` (modded, `LEO_PlayerController.c`), with the vehicle's `RplId`; the server checks that the sender is the driver. Read every frame, sent at 20 Hz and on change (unreliable); engine start/stop reliable |
+| With a pilot seated, the native `TrackedControllerComponent` rewrites the inputs every step (clutch open, throttle zeroed), even with `LockPilotControls(true)` | `SetPilotCompartmentSlot(null)` while the driver sits in; restored when they leave. The simulation then drives on the script's inputs alone |
+| The native automatic gearbox and clutch only run for an owner-driven vehicle | Own shifting by `EngineGetRPM` (up 2500, down 1100; gear 0 = R, 1 = N, 2.. forward) and `SetClutch` |
+| Without a native driver the hull sleeps after about 2 s and `EOnSimulate` stops | `SetActive(ALWAYS_ACTIVE)` while driving |
+| The handbrake | `SetBreak(brake, true)` on the server: the real handbrake flag, so pivots work on a dedicated server |
+| A replicated vehicle gets **no** entity events on clients (frame, post-frame, fixed, visible; any mask, `ACTIVE` set or not) | Belt speeds and wheel contact heights replicated as `RplProp`s; the clients animate the running gear from a call-queue tick (`GetGame().GetCallqueue().CallLater(fn, 0, true)`) |
+
+A server-owned vehicle **is** moved on the clients by the native movement replication (`IsInterpolating` true), so v6 does not replicate the hull transform itself.
+
+**Measured** (1.8.0.13, `ArmaReforgerSteamDiag.exe -server` + `-client` on one PC, the client's player seated as driver by a test component, driver-bound test inputs sent through the real RPC path): 0 to 40 km/h in 8 s, gears 2 to 5, full steer at speed 0.8–1.0 rad/s, the client follows the hull, no crash. With the listen host itself seated: the engine starts on throttle and drives the same.
+
+**Not yet checked:** a person driving on a client (head, look, camera, input feel), and real latency. The native steering at speed with the throttle released counter-rotates the inner track (yaw about 0.8–1.0 rad/s, the hull can roll backwards): native differential behaviour, not the script.
+
+### Replication rules for scripted vehicles (measured)
+
+These hold for any vehicle driven by script, native simulation or not:
+
+1. The server accepts `RplRcver.Server` RPCs only from the owner of the replicated item. Send a client driver's inputs through their own player controller.
+2. On sitting in the pilot seat the engine gives the vehicle to the driver's client. A client that owns a vehicle whose native simulation is inert (no simulation block) **crashes** in the physics step (access violation). Take it back with `GiveExt(RplIdentity.Local(), false)`.
+3. A vehicle without a working native simulation gets no transform replication from `NwkTrackedMovementComponent`. Replicate position, angles and velocity yourself and dead-reckon on the clients.
+4. Client code of a replicated vehicle must run from the call queue, not from entity events.
+5. Testing: `ArmaReforgerSteamDiag.exe -client` on the same machine and account as a Diag `-server` is dropped ("same identity") unless both run with `-noConnMatching`. The Diag `-server` is a listen server; its own player is PlayerId 1.
 
 ### Testing multiplayer on one PC: the Peer Tool
 
@@ -112,8 +143,9 @@ Diag entries that help (both windows have the menu): *Vehicles* → *Vehicle Net
 
 - Which native step of the owner-client path keeps the driver character alive for cars and is missing for tracked vehicles?
 - What are the units of the angle allowance (0.003), and which relaxed values keep pivots and reverse smooth under real latency?
-- Does the server-side handbrake mirror hold under 100 ms+ latency, or does the correction at each transition become visible?
+- Does the server-side handbrake mirror hold under 100 ms+ latency, or does the correction at each transition become visible? (v5 only; v6 has no client prediction to correct.)
+- With v6, is the driver on a client normal when a person drives (head, look, camera, inputs)?
 
 ---
 
-[← Appendix](17-appendix.md) · [Contents](../../README.md)
+[← Appendix](17-appendix.md) · [Contents](../../README.md) · [Kiichi Tracked System →](19-kiichi-tracked-system.md)

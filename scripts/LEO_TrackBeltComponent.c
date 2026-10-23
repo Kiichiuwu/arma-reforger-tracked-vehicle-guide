@@ -21,32 +21,68 @@ class LEO_TrackBeltComponent : ScriptComponent
 	protected float m_fTimeout;
 
 	protected float m_fTimer;
+	protected bool m_bDone;
 
 	//------------------------------------------------------------------------------------------------
 	override void OnPostInit(IEntity owner)
 	{
 		super.OnPostInit(owner);
-		SetEventMask(owner, EntityEvent.FRAME);
+		// a replicated vehicle gets no entity frame events on clients (measured on 1.8 and 1.9): poll from the call
+		// queue there, frame events on the authority
+		RplComponent rpl = RplComponent.Cast(owner.FindComponent(RplComponent));
+		if (rpl && rpl.IsProxy())
+			GetGame().GetCallqueue().CallLater(ProxyPoll, 250, true);
+		else
+			SetEventMask(owner, EntityEvent.FRAME);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnDelete(IEntity owner)
+	{
+		GetGame().GetCallqueue().Remove(ProxyPoll);
+		super.OnDelete(owner);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override void EOnFrame(IEntity owner, float timeSlice)
 	{
+		if (Check(owner, timeSlice))
+			ClearEventMask(owner, EntityEvent.FRAME);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ProxyPoll()
+	{
+		IEntity owner = GetOwner();
+		if (!owner || owner.IsDeleted() || Check(owner, 0.25))
+			GetGame().GetCallqueue().Remove(ProxyPoll);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! \return true once the job is done (links found and belts hidden, or given up)
+	protected bool Check(IEntity owner, float timeSlice)
+	{
+		if (m_bDone)
+			return true;
+
 		m_fTimer += timeSlice;
 		int links = CountLinks(owner);
 		if (links >= 2)
 		{
 			int hidden = ShowStaticBelts(owner, false);
 			PrintFormat("LEOTRACK link chain found (%1 links): %2 static belt meshes hidden", links, hidden);
-			ClearEventMask(owner, EntityEvent.FRAME);
-			return;
+			m_bDone = true;
+			return true;
 		}
 
 		if (m_fTimer > m_fTimeout)
 		{
 			Print("LEOTRACK no link chain after " + m_fTimeout.ToString() + " s: static belts kept", LogLevel.WARNING);
-			ClearEventMask(owner, EntityEvent.FRAME);
+			m_bDone = true;
+			return true;
 		}
+
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------

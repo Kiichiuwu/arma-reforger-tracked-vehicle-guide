@@ -51,7 +51,7 @@ O que o controlador fez no 2A6 (telemetria e painel de depuração, 05/10 e 06/1
 | Fim da 1ª | Segura a 1ª no limitador a 13,6 km/h (cerca de 2935 rpm) até subir a marcha |
 | Reduções | Medianas 1318 rpm (8,4 km/h), 1758 rpm (21,4 km/h) e 1626 rpm (34,2 km/h) |
 | Giro no lugar (esterçamento total, quase parado) | Ou embreagem 0 com freio 6,0 e motor no limitador a 2700 rpm (3409 N·m), ou embreagem 1 com o motor arrastado para 700 rpm (4601 N·m). A lagarta que andava para trás costumava ser mais rápida, e o casco recuava a 0,1–3,8 km/h (causa em aberto) |
-| Motorista sai do banco | O controlador puxa o freio de mão e, parado, seleciona a ré. O bug da ré então prende o motor bem acima de `RpmMax`. O [`LEO_TrackedReverseComponent`](../../scripts/LEO_TrackedReverseComponent.c) desliga o motor quando o banco fica vazio (`m_bStopEngineOnExit`) |
+| Motorista sai do banco | O controlador puxa o freio de mão e, parado, seleciona a ré. O bug da ré então prende o motor bem acima de `RpmMax`. O [`LEO_TrackedReverseComponent`](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/blob/v2.1-leopard2a6-mp/scripts/LEO_TrackedReverseComponent.c) desliga o motor quando o banco fica vazio (`m_bStopEngineOnExit`) |
 
 ### A simulação (VehicleTrackedSimulation)
 

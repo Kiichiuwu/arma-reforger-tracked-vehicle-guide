@@ -1,0 +1,36 @@
+// Leopard2A6_base.et: the hull with everything except a drive system (VehicleTrackedSimulation is NOT here).
+// Its components are the ones in HullComponents_Leopard2A6.et.txt plus the vanilla vehicle components.
+// The three Workshop prefabs are children of it and differ only in the drive system.
+
+// ---- Leopard2A6.et: vanilla (native) tracked simulation, patched ----
+Vehicle : "{885B8B0A755B6A1E}Prefabs/Vehicles/Tracked/Leopard2A6/Leopard2A6_base.et" {
+ ID "BBCBA43A9778AE21"
+ components {
+  // paste the full block from VehicleTrackedSimulation_Leopard2A6.et.txt here
+  VehicleTrackedSimulation "{6160DE6434513C4D}" {
+  }
+  LEO_TrackedDriveComponent "{7A1D4C9E2B6F3086}" {
+  }
+  SCR_EditableVehicleComponent "{50DEB7C26B5EB312}" {
+   m_UIInfo SCR_EditableVehicleUIInfo "{5298E609432D192D}" {
+    Name "Leopard 2A6 (vanilla tracked simulation)"
+   }
+  }
+ }
+}
+
+// ---- Leopard2A6_LEO18.et / Leopard2A6_LEO19.et: Kiichi Tracked System (scripted simulation) ----
+// No VehicleTrackedSimulation block: the native simulation stays inert ("Tracked - failed to load!" in the log is
+// expected) and LEO_TrackSimComponent drives the hull. The 1.8 and 1.9 prefabs are identical apart from the name.
+Vehicle : "{885B8B0A755B6A1E}Prefabs/Vehicles/Tracked/Leopard2A6/Leopard2A6_base.et" {
+ ID "BBCBA43A9778AE21"
+ components {
+  LEO_TrackSimComponent "{7A1D4C9E2B6F30A1}" {
+  }
+  SCR_EditableVehicleComponent "{50DEB7C26B5EB312}" {
+   m_UIInfo SCR_EditableVehicleUIInfo "{5298E609432D192D}" {
+    Name "Leopard 2A6 (Kiichi Tracked System, 1.8)"
+   }
+  }
+ }
+}

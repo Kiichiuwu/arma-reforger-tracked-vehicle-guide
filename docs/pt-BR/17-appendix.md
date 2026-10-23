@@ -318,7 +318,7 @@ O resto da configuração de veículo de esteira do prefab do casco. A primeira 
   }
   LEO_RunningGearComponent "{5292A83C2D6FC873}" {
   }
-  LEO_TrackedReverseComponent "{7A1D4C9E2B6F3085}" {
+  LEO_TrackedDriveComponent "{7A1D4C9E2B6F3086}" {
   }
   LEO_TelemetryComponent "{3C5E7A9B1D2F4608}" {
   }

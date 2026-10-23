@@ -4,11 +4,13 @@
 
 # Scripts prontos
 
-O Leopard 2A6 usa cinco arquivos de script e uma ferramenta offline no veículo de esteira. Eles usam só a API vanilla do Workbench 1.8.0.13. O código está em [`scripts/`](../../scripts) e [`tools/`](../../tools), sob a licença MIT.
+O Leopard 2A6 usa sete arquivos de script e uma ferramenta offline no veículo de esteira. Eles usam só a API vanilla do Workbench 1.8.0.13, que a 1.9.0.10 Experimental não mudou. O código está em [`scripts/`](../../scripts) e [`tools/`](../../tools), sob a licença MIT.
 
 | Arquivo | Tipo | O que faz | Quando você precisa |
 | --- | --- | --- | --- |
-| [`LEO_TrackedReverseComponent.c`](../../scripts/LEO_TrackedReverseComponent.c) | Componente | Empurra o casco para trás enquanto o motorista segura a ré. Desliga o motor quando o motorista sai | Sempre: a ré nativa não anda ([por quê](09-bugs.md)) |
+| [`LEO_TrackedDriveComponent.c`](../../scripts/LEO_TrackedDriveComponent.c) | Componente | Dirige a simulação **nativa** pelo servidor: inputs do motorista por RPC, o freio de mão de verdade, troca de marcha própria, ré por script, veículo de posse do servidor | Num veículo que mantém a `VehicleTrackedSimulation` ([capítulo 18](18-multiplayer.md)). Substitui o `LEO_TrackedReverseComponent` v5 |
+| [`LEO_TrackSimComponent.c`](../../scripts/LEO_TrackSimComponent.c) | Componente | **Kiichi Tracked System**: toda a simulação de lagarta em script (suspensão, motor, câmbio, esteiras, tração, direção por embreagem e freio) num corpo rígido comum, com autoridade do servidor | No lugar da simulação nativa, na 1.8 e na 1.9 ([capítulo 19](19-kiichi-tracked-system.md)) |
+| [`LEO_PlayerController.c`](../../scripts/LEO_PlayerController.c) | `SCR_PlayerController` modificado | Leva os inputs do motorista e o liga/desliga do motor até o servidor | Sempre, com qualquer um dos dois componentes de direção: o servidor só aceita RPC do dono do item, e um veículo de posse do servidor não tem dono na máquina do motorista |
 | [`LEO_RunningGearComponent.c`](../../scripts/LEO_RunningGearComponent.c) | Componente | Move os ossos das rodas de apoio com a suspensão, gira todas as rodas, roda a corrente de elos por script e esconde os elos da corda nativa | Quando as rodas e os elos precisam se mexer ([capítulo 14](14-running-gear.md)) |
 | [`LEO_TrackChain.c`](../../scripts/LEO_TrackChain.c) | Classe simples | A corrente de elos por script de uma lagarta: o caminho da esteira e as entidades dos elos | Sempre junto com o `LEO_RunningGearComponent` ([capítulo 15](15-track-links.md)) |
 | [`LEO_TrackBeltComponent.c`](../../scripts/LEO_TrackBeltComponent.c) | Componente | Esconde as malhas estáticas da esteira do casco quando existem entidades de elo | Quando o modelo mantém uma esteira estática como reserva |
@@ -29,14 +31,16 @@ flowchart LR
     BONES["Ossos das rodas<br/>SetBoneMatrix"]
     BELT["LEO_TrackBeltComponent"]
     STATIC["Esteiras estáticas<br/>track_l, track_r"]
-    REV["LEO_TrackedReverseComponent"]
+    REV["LEO_TrackedDriveComponent<br/>(servidor)"]
+    PC["LEO_PlayerController<br/>(cliente do motorista)"]
     BODY["RigidBody"]
     TEL["LEO_TelemetryComponent"]
     LOG["console.log"]
     SIM --> CTRL
     SIM --> NATIVE
     CTRL --> GEAR
-    CTRL --> REV
+    PC -->|inputs por RPC| REV
+    REV -->|SetInputs, SetBreak, SetGear| SIM
     CTRL --> TEL
     GEAR --> BONES
     GEAR --> CHAIN
@@ -44,7 +48,7 @@ flowchart LR
     CHAIN -.->|contados por| BELT
     NATIVE -.->|contados por| BELT
     BELT -->|esconde| STATIC
-    REV -->|ApplyForce, ApplyTorque| BODY
+    REV -->|empurrão da ré| BODY
     REV -.->|StopEngine quando o motorista sai| CTRL
     TEL --> LOG
 ```
@@ -55,14 +59,14 @@ O que acontece no *Play*, em ordem:
 2. **A simulação fica válida** 0,78–1,26 s depois de a entidade do veículo ser criada, 8–13 s antes de ligar o motor nas sessões registradas (medido). Nesse primeiro quadro, o `LEO_RunningGearComponent` registra `LEOGEAR simulation: 2 tracks, WheelCount 13` e cria 2 × 73 entidades de elo. A corda do motor já criou os 146 elos dela.
 3. **Mesmo quadro.** O `LEO_TrackBeltComponent` conta 292 elos filhos e esconde as esteiras estáticas (`LEOTRACK link chain found (292 links)`).
 4. **A cada quadro.** O `LEO_RunningGearComponent` lê cada roda da simulação, escreve as matrizes dos ossos, reconstrói os dois caminhos da esteira e posiciona os elos. Ele esconde os elos nativos 4 vezes por segundo nos primeiros 10 s, depois a cada 2 s.
-5. **A cada passo da física.** O `LEO_TrackedReverseComponent` confere as condições da ré e empurra o casco. A cada quadro, ele também confere se o banco do motorista ficou vazio.
+5. **A cada passo da física, no servidor.** O `LEO_TrackedDriveComponent` aplica os últimos inputs do motorista na simulação, troca as marchas pelo rpm e empurra o casco na ré. No cliente do motorista, o `LEO_PlayerController` envia os inputs a 20 Hz e a cada mudança.
 6. **A cada 0,5 s.** O `LEO_TelemetryComponent` escreve as linhas dele.
 
-Os componentes que leem a simulação a pegam pelo `TrackedControllerComponent.GetSimulation()`. Nenhum deles escreve nela, exceto o `SetGear` opcional do `m_bHoldNeutral`. O `LEO_TrackBeltComponent` nem usa a simulação.
+Os componentes que leem a simulação a pegam pelo `TrackedControllerComponent.GetSimulation()`. Só o `LEO_TrackedDriveComponent` escreve nela, no servidor. O `LEO_TrackBeltComponent` nem usa a simulação.
 
 ### Como instalar
 
-1. Copie os cinco arquivos `.c` para `scripts/Game/Vehicle/` do seu mod.
+1. Copie os sete arquivos `.c` para `scripts/Game/Vehicle/` do seu mod (o `LEO_PlayerController.c` pode ficar em qualquer lugar dentro de `scripts/Game/`). O `LEO_RunningGearComponent.c` faz referência aos dois componentes de direção, então copie os dois mesmo que use só um.
 2. Recompile os scripts com o *Play* **parado**. No executável Diag, recarregue **sem mundo aberto**; senão aparece o assert `Resources are leaking` ([Solução de problemas](12-troubleshooting.md)).
 3. Acrescente os componentes ao bloco `components { }` do prefab do casco, com o override vazio do `CarProcAnimComponent`:
 
@@ -71,7 +75,7 @@ Os componentes que leem a simulação a pegam pelo `TrackedControllerComponent.G
   }
   LEO_RunningGearComponent "{5292A83C2D6FC873}" {
   }
-  LEO_TrackedReverseComponent "{7A1D4C9E2B6F3085}" {
+  LEO_TrackedDriveComponent "{7A1D4C9E2B6F3086}" {
   }
   LEO_TelemetryComponent "{3C5E7A9B1D2F4608}" {
   }
@@ -85,51 +89,65 @@ Os componentes que leem a simulação a pegam pelo `TrackedControllerComponent.G
 Notas sobre o trecho:
 
 - `{5D6501223785D009}` é o `CarProcAnimComponent` que o `TrackedVehicle_Base.et` já tem, vazio. Mantenha-o **sem** `Parameters`. Num veículo de esteira ele dá à maioria dos ossos das rodas os sinais de outra roda ([capítulo 14](14-running-gear.md)). Se o seu prefab acrescentou `ProcAnimParams` a ele, apague-os.
-- Os quatro IDs `LEO_` são os do Leopard. Qualquer ID hexadecimal único de 16 dígitos serve; o Workbench cria um quando você acrescenta um componente no editor.
+- Esta é a variante vanilla. Para o Kiichi Tracked System, deixe de fora a `VehicleTrackedSimulation` e o `LEO_TrackedDriveComponent` e acrescente `LEO_TrackSimComponent "{7A1D4C9E2B6F30A1}" { }` no lugar. Os três prefabs do Workshop estão em [`examples/leopard2a6/Prefabs_Leopard2A6_variants.et.txt`](../../examples/leopard2a6/Prefabs_Leopard2A6_variants.et.txt).
+- Os IDs `LEO_` são os do Leopard. Qualquer ID hexadecimal único de 16 dígitos serve; o Workbench cria um quando você acrescenta um componente no editor.
 - O bloco completo do Leopard, com o `RigidBody`, está em [`examples/leopard2a6/HullComponents_Leopard2A6.et.txt`](../../examples/leopard2a6/HullComponents_Leopard2A6.et.txt). O `ThrottleReverseTarget 1` vai no controlador ([Apêndice](17-appendix.md)).
 - O `LEO_TrackChain.c` não tem componente. O `LEO_RunningGearComponent` cria uma corrente por lagarta.
 - Se você usar os scripts em outro mod, troque o prefixo `LEO_` para que as classes não colidam com o mod do Leopard. O `category: "Leopard2A7"` no `ComponentEditorProps` só agrupa os componentes na lista do editor.
 
-### LEO\_TrackedReverseComponent (ré por script, v5)
+### LEO\_TrackedDriveComponent (simulação nativa dirigida pelo servidor, v6)
 
-A ré nativa prende o motor acima do `RpmMax`, então nenhum torque chega às lagartas ([Bugs e limitações](09-bugs.md)). Este componente aplica uma força para trás no casco enquanto tudo isto vale:
+O sucessor do `LEO_TrackedReverseComponent` v5 (o arquivo do v5 está na tag [`v2.1-leopard2a6-mp`](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/tree/v2.1-leopard2a6-mp)). Ele mantém a simulação nativa e passa a direção para o servidor, porque o caminho nativo do cliente num veículo de esteira está inacabado ([capítulo 18](18-multiplayer.md)):
 
-- o motorista local segura `TrackedBrake` e não `TrackedThrottle`;
-- o motor está ligado;
-- o casco está parado ou já andando para trás (velocidade para a frente abaixo de `m_fForwardCutoffKmh`);
-- a marcha nativa é ré ou neutro (índice 0 ou 1);
-- o sinal de freio nativo (`GetBrake()`) está abaixo de 0,05.
+- **Veículo de posse do servidor.** Quando um motorista senta, a engine entrega o veículo ao cliente dele; o servidor toma de volta (`RplComponent.GiveExt(RplIdentity.Local(), false)`), então o cliente do motorista é um proxy como o de um passageiro e nunca prediz o veículo.
+- **Inputs por RPC.** O cliente do motorista lê as teclas a cada quadro e envia acelerador, freio, direção e freio de mão pelo `LEO_PlayerController` a 20 Hz e a cada mudança; ligar/desligar o motor vai por canal confiável.
+- **Aplicados no servidor.** `SetInputs(steer, throttle)`, `SetBreak(brake, handbrake)` (só `SetBreak(x, true)` guarda o freio de mão que o pivô precisa), `SetClutch` e `SetGear` pelo rpm (`m_fRpmShiftUp` / `m_fRpmShiftDown`): o câmbio automático e a embreagem nativos só funcionam num veículo dirigido pelo dono.
+- **Banco do piloto desacoplado.** Com um piloto sentado, o `TrackedControllerComponent` nativo reescreve os inputs a cada passo, mesmo com `LockPilotControls(true)`. `SetPilotCompartmentSlot(null)` enquanto há motorista cala o controlador; o banco volta quando ele sai.
+- **A ré** continua sendo um empurrão no casco (a ré nativa não acopla na 1.8.0.13), agora aplicado no servidor.
+- **Os clientes** animam o trem de rolamento a partir de um pequeno estado replicado (velocidade das esteiras, altura de contato das rodas), porque um veículo replicado não recebe eventos de entidade nos clientes.
+- O motor liga pela tecla do motor, ou sozinho quando o motorista aperta acelerador ou freio. Desliga quando o banco do motorista fica vazio (`m_bStopEngineOnExit`).
 
-A força é `m_fLaunchForceG` vezes o peso parado. Ela cai linearmente até zero em `m_fMaxReverseSpeedKmh`. As teclas de direção acrescentam um torque de guinada, limitado a `m_fMaxYawRate`.
-
-O componente também desliga o motor quando o banco do motorista fica vazio (`m_bStopEngineOnExit`). Sem motorista, o controlador puxa o freio de mão; parado, ele então seleciona a ré, e o bug da ré prendeu o motor em cerca de 4500 rpm (observado no 2A6, 04/10/2026). A conferência roda no `EOnFrame`, porque o corpo da física pode dormir quando ninguém dirige. O log mostra `LEOREV driver left: engine stopped` quando ela age.
-
-| Atributo | Padrão | Função |
+| Atributo | Padrão | Para que serve |
 | --- | --- | --- |
-| `m_fLaunchForceG` | 0.3 | Força parado, como fração do peso |
-| `m_fMaxReverseSpeedKmh` | 31 | Velocidade máxima de ré em km/h. A força cai a zero ali |
-| `m_fForwardCutoffKmh` | 1.5 | Acima desta velocidade para a frente em km/h, o script não empurra |
-| `m_fSteerTorque` | 900000 N·m | Torque de curva em ré com a direção toda |
-| `m_fMaxYawRate` | 0.45 rad/s | Taxa máxima de curva em ré |
-| `m_bHoldNeutral` | 0 | Força o câmbio nativo de R para N durante a ré. O controlador volta para R, então fica desligado |
-| `m_bDebug` | 1 | Escreve linhas `LEOREV` no log enquanto a tecla de ré está apertada |
-| `m_bStopEngineOnExit` | 1 | Desliga o motor quando o banco do motorista fica vazio. Sem isso, o tanque estacionado seleciona a ré e o motor fica preso acima do `RpmMax` |
+| `m_fLaunchForceG` | 0,3 | Ré: força parado, como fração do peso |
+| `m_fMaxReverseSpeedKmh` | 31 | Ré: velocidade máxima em km/h. Mantenha abaixo do limite nativo de velocidade da lagarta (fórmula abaixo) |
+| `m_fSteerTorque` | 900000 N·m | Ré: torque de guinada com direção total. Escale com a massa |
+| `m_fMaxYawRate` | 0,45 rad/s | Ré: taxa máxima de giro |
+| `m_fRpmShiftUp` / `m_fRpmShiftDown` | 2500 / 1100 | Limites de troca de marcha |
+| `m_bServerOwned` | 1 | Devolve o veículo ao servidor quando um motorista senta |
+| `m_bDetachPilotSlot` | 1 | Desacopla o banco do piloto do controlador nativo enquanto dirige |
+| `m_bLockPilotControls` | 1 | Também trava os controles nativos do piloto (garantia extra) |
+| `m_fNetSendInterval` / `m_fNetStateInterval` | 0,05 s | Pacotes de input do motorista / estado do trem de rolamento para os clientes |
+| `m_fWheelRadius` | 0,418 m | Raio da roda de apoio para os clientes antes de a simulação informar |
+| `m_bStopEngineOnExit` | 1 | Desliga o motor quando o banco do motorista fica vazio |
+| `m_bDebug` | 0 | Linha `LEONET` uma vez por segundo no servidor, heartbeat nos clientes |
+| `m_bTestDriverSchedule`, `m_fTest*` | 0 | Inputs de teste por script para rodadas automáticas (sem jogador) |
 
-Mantenha o `m_fMaxReverseSpeedKmh` abaixo do limite nativo de velocidade da esteira em ré:
+Mantenha `m_fMaxReverseSpeedKmh` abaixo do limite nativo de velocidade da lagarta em ré:
 
 ```math
-v_{\text{max,rev}}\,[\text{km/h}] = \frac{\text{RpmMax}}{|\text{Reverse}| \cdot \text{Ratio}} \cdot \frac{2\pi}{60} \cdot r_{\text{sprocket}} \cdot 3.6
+v_{\text{max,ré}}\,[\text{km/h}] = \frac{\text{RpmMax}}{|\text{Reverse}| \cdot \text{Ratio}} \cdot \frac{2\pi}{60} \cdot r_{\text{roda motriz}} \cdot 3{,}6
 ```
 
-No 2A6: 3000 / (2,3 · 4,6) · 0,10472 · 0,34 · 3,6 ≈ 36,3 km/h. O script para de empurrar em 31 km/h.
+No 2A6: 3000 / (2,3 · 4,6) · 0,10472 · 0,34 · 3,6 ≈ 36,3 km/h. O script para de empurrar a 31 km/h.
 
-O `m_fSteerTorque` de 900 000 N·m é o valor do 2A6 de 62,3 t. A versão anterior, do 2A7 de 64,5 t, usava o mesmo valor. Escale com a massa.
+**Medido (1.8.0.13, servidor dedicado Diag + cliente Diag, motorista no cliente, 2026-10-20):** 0 a 40 km/h em 8 s, marchas 2 a 5 (o índice 2 é a primeira marcha: 0 = R, 1 = N), direção total em velocidade a 0,8–1,0 rad/s, o cliente acompanha o casco pela replicação nativa de movimento, sem crash. Com o host sentado (2026-10-21): o motor liga ao acelerar, mesma aceleração. **Ainda não conferido por uma pessoa dirigindo num cliente:** se o problema de cabeça e câmera do motorista descrito no capítulo 18 sumiu.
 
-**Medido no 2A6** (LEOTEL, 05/10/2026 23:19, ré a fundo): de 0 a −20,9 km/h em cerca de 3 s, e −27,8 km/h depois de cerca de 7,6 s. O motor nativo ainda ficou em 3767 rpm em R durante o empurrão. A fórmula do [capítulo 9](09-bugs.md) prevê 3766,1 rpm para 62 300 kg, `Reverse` 2.3, `Ratio` 4.6 e `Inertia` 3.
+Nunca chame `GetInputs()` na simulação de lagarta: o binding do parâmetro de saída escreve num ponteiro nulo. `GetThrottle`, `SetThrottle` e `IsHandbrakeOn` são stubs vazios.
 
-**Multiplayer (v5).** O cliente do motorista manda `{ré, direção, freio de mão}` para o servidor por RPC; o servidor aplica o mesmo empurrão, repõe o freio de mão que o move de rede descarta (`m_bMirrorHandbrake`), afrouxa as tolerâncias de reconciliação durante giro ou ré (`m_bRelaxAllowance`) e desliga o motor só na autoridade. `m_bClientPrediction 0` desliga a ressimulação do cliente (uma chave de experimento). Verificado no Peer Tool do Workbench; ainda não com latência real. O problema de câmera e comandos do motorista em clientes é uma limitação do motor que este componente não corrige. Veja [Multiplayer](18-multiplayer.md).
+### LEO\_TrackSimComponent (Kiichi Tracked System)
 
-As mensagens `LEOREV` estão listadas em [Solução de problemas](12-troubleshooting.md).
+Substitui a `VehicleTrackedSimulation` por completo: o prefab não tem bloco de simulação nativa, o casco é um corpo rígido dinâmico comum, e este componente aplica todas as forças no `EOnSimulate`, no servidor. O [capítulo 19](19-kiichi-tracked-system.md) explica o modelo, a replicação e as medições. Os padrões são os valores do Leopard 2A6, tirados do prefab nativo.
+
+| Grupo | Atributos (padrão) |
+| --- | --- |
+| Suspensão | `m_iRoadWheels` 7, `m_fWheelRadius` 0,418 m, `m_fSpringRate` 450000 N/m, `m_fCompressionDamper` 25000 / `m_fRelaxationDamper` 35000 N·s/m, `m_fTravelUp` 0,30 / `m_fTravelDown` 0,10 m, `m_fPreload` 0,10 m |
+| Motor | `m_fMaxTorque` 4700 N·m a `m_fRpmMaxTorque` 1600, `m_fMaxPowerKw` 1100 a `m_fRpmMaxPower` 2600, `m_fRpmIdle` 700, `m_fRpmMax` 3000, `m_fEngineInertia` 3, `m_fEngineFriction` 470 N·m |
+| Transmissão | `m_sForwardGears` "6.0 3.3 1.8 1.0", `m_fReverseGear` 2,3, `m_fFinalDrive` 4,6, `m_fEfficiency` 0,9, `m_fSprocketRadius` 0,34 m, `m_fRpmShiftUp` 2500 / `m_fRpmShiftDown` 1100 |
+| Esteiras e solo | `m_fBeltMass` 400 kg, `m_fMaxBrakeForce` 900000 N, `m_fSlipStiffness` 800000 N/(m/s), `m_fFrictionLng` 0,9, `m_fFrictionLat` 0,5, `m_fLateralStiffness` 3, `m_fLateralFrictionHalfSpeed` 3 m/s, `m_fRollingResistance` 0,02 |
+| Direção | `m_fSteerForce` 300000 N, `m_fSteerSpeedDiffMax` 2,6 m/s, `m_fSteerHalfSpeedKmh` 18, `m_fPivotBlendSpeed` 1,5 m/s, `m_fSteerDriveShare` 0,8, `m_fSteerBrakeForce` 300000 N, `m_fSteerBrakeWithThrottle` 150000 N, `m_fSteerBrakeHalfSpeedKmh` 54 |
+| Rede | `m_fNetSendInterval` 0,05 s, `m_fNetStateInterval` 0,05 s, `m_fProxySmoothing` 0,08 s |
+| Debug e testes | `m_bDebug` 0 (linha `LEOSIM` uma vez por segundo), `m_bTestDriverSchedule`, `m_fTest*` |
 
 ### LEO\_TelemetryComponent (telemetria para ajuste)
 

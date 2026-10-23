@@ -22,8 +22,8 @@ The last column says how each item is known:
 
 | Problem | Symptom | Workaround | Evidence |
 | --- | --- | --- | --- |
-| **Native reverse is broken** | The engine climbs above `RpmMax` and no torque reaches the tracks. On a downhill, only gravity moves the tank | Script that pushes the hull (`LEO_TrackedReverseComponent`, [Ready-made scripts](11-scripts.md)) + `ThrottleReverseTarget 1`. Details [below](#reverse-in-detail) | Measured + reverse-engineered |
-| Driver leaves with the engine running | Without a driver, the controller pulls the handbrake (brake 6.0). At standstill it then selects reverse (gear 0, clutch 1), and the reverse bug pins the engine at about 4500 rpm while parked | `m_bStopEngineOnExit` (default 1) in `LEO_TrackedReverseComponent` stops the engine when the driver seat becomes empty. The log shows `LEOREV driver left: engine stopped` | Measured |
+| **Native reverse is broken** | The engine climbs above `RpmMax` and no torque reaches the tracks. On a downhill, only gravity moves the tank | Script that pushes the hull (`LEO_TrackedDriveComponent`, formerly `LEO_TrackedReverseComponent`, [Ready-made scripts](11-scripts.md)) + `ThrottleReverseTarget 1`. Details [below](#reverse-in-detail) | Measured + reverse-engineered |
+| Driver leaves with the engine running | Without a driver, the controller pulls the handbrake (brake 6.0). At standstill it then selects reverse (gear 0, clutch 1), and the reverse bug pins the engine at about 4500 rpm while parked | `m_bStopEngineOnExit` (default 1) in `LEO_TrackedDriveComponent` stops the engine when the driver seat becomes empty | Measured |
 | `ThrottleReverseTarget` below 1 | When you hold S while stopped, the tank moves **forward** | Use `ThrottleReverseTarget 1` | Measured (2A7) |
 | Incomplete vanilla `.ct` | `Tracked - failed to load!` | Add friction curves, wheel templates and tracks | Measured (2A7) |
 | Default retarder | Top speed locked at \~51–54 km/h | `RetarderBaseTorque 0`, `RetarderThrottleSpeed 20` | Measured (2A7) |
@@ -124,6 +124,8 @@ With `ThrottleReverseTarget` below 1, the engine produces negative torque. Multi
 The formula above predicts the 3766–3768 plateau of the first two rows. The higher values with the brake applied are not explained yet.
 
 ### The workaround used on the Leopard
+
+This section describes `LEO_TrackedReverseComponent` v4/v5, which took the measurements below. Since 2026-10-20 `LEO_TrackedDriveComponent` applies the same push on the server ([Ready-made scripts](11-scripts.md)).
 
 `LEO_TrackedReverseComponent` applies a backward force to the hull when all of these hold:
 

@@ -15,7 +15,8 @@ do git, na tag
 | File / Arquivo | What it is / O que é |
 | --- | --- |
 | [`VehicleTrackedSimulation_Leopard2A6.et.txt`](VehicleTrackedSimulation_Leopard2A6.et.txt) | The full `VehicleTrackedSimulation` block: the `Simulation Tracked` values (engine, clutch, gearbox, differential, friction curves, wheel templates, two tracks with 13 `TrackPart` entries each) and, after it, the link chain attributes with the 73 `TrackPositions`. / O bloco `VehicleTrackedSimulation` completo: os valores do `Simulation Tracked` (motor, embreagem, câmbio, diferencial, curvas de atrito, modelos de roda, duas lagartas com 13 `TrackPart` cada) e, depois dele, os atributos da corrente de elos com as 73 `TrackPositions`. |
-| [`HullComponents_Leopard2A6.et.txt`](HullComponents_Leopard2A6.et.txt) | The other hull component overrides: `RigidBody` (mass, centre of mass offset, sleeping thresholds), the empty `CarProcAnimComponent` and the four `LEO_*` script components with their IDs. / Os outros componentes sobrescritos no casco: `RigidBody` (massa, deslocamento do centro de massa, limites de repouso), o `CarProcAnimComponent` vazio e os quatro componentes de script `LEO_*` com os IDs. |
+| [`HullComponents_Leopard2A6.et.txt`](HullComponents_Leopard2A6.et.txt) | The other hull component overrides: `RigidBody` (mass, centre of mass offset, sleeping thresholds), the empty `CarProcAnimComponent` and the `LEO_*` running gear components with their IDs. / Os outros componentes sobrescritos no casco: `RigidBody` (massa, deslocamento do centro de massa, limites de repouso), o `CarProcAnimComponent` vazio e os componentes `LEO_*` do trem de rolamento com os IDs. |
+| [`Prefabs_Leopard2A6_variants.et.txt`](Prefabs_Leopard2A6_variants.et.txt) | The three Workshop prefabs, children of `Leopard2A6_base.et`: vanilla simulation + `LEO_TrackedDriveComponent`, and Kiichi Tracked System (`LEO_TrackSimComponent`, no native simulation block) for 1.8 and 1.9 ([chapter 19](../../docs/en/19-kiichi-tracked-system.md)). / Os três prefabs do Workshop, filhos do `Leopard2A6_base.et`: simulação vanilla + `LEO_TrackedDriveComponent`, e Kiichi Tracked System (`LEO_TrackSimComponent`, sem bloco de simulação nativa) para 1.8 e 1.9 ([capítulo 19](../../docs/pt-BR/19-kiichi-tracked-system.md)). |
 
 ## How to use / Como usar
 
@@ -46,7 +47,9 @@ do git, na tag
    ```
 
 5. Copy the scripts from [`scripts/`](../../scripts/) into your addon's `scripts/Game/` folder (the
-   Leopard mod uses `scripts/Game/Vehicle/`). `LEO_RunningGearComponent.c` needs `LEO_TrackChain.c`.
+   Leopard mod uses `scripts/Game/Vehicle/`). Copy them all: `LEO_RunningGearComponent.c` needs
+   `LEO_TrackChain.c`, `LEO_TrackSimComponent.c` and `LEO_TrackedDriveComponent.c`, and both drive components
+   need `LEO_PlayerController.c`.
    The `LEO_*` components are empty in the block because their attribute defaults are the Leopard's
    values; set them for your tank ([chapter 11](../../docs/en/11-scripts.md)).
 
@@ -68,7 +71,8 @@ do git, na tag
 4. Acrescente a sobrescrita do controlador, que não está nos arquivos (bloco acima, em **EN**, passo 4).
 5. Copie os scripts de [`scripts/`](../../scripts/) para a pasta `scripts/Game/` do seu addon (o mod
    do Leopard usa `scripts/Game/Vehicle/`). O `LEO_RunningGearComponent.c` precisa do
-   `LEO_TrackChain.c`. Os componentes `LEO_*` estão vazios no bloco porque os valores padrão dos
+   `LEO_TrackChain.c`, do `LEO_TrackSimComponent.c` e do `LEO_TrackedDriveComponent.c`, e os dois componentes de
+   direção precisam do `LEO_PlayerController.c`. Copie todos. Os componentes `LEO_*` estão vazios no bloco porque os valores padrão dos
    atributos são os do Leopard; ajuste-os para o seu tanque ([capítulo 11](../../docs/pt-BR/11-scripts.md)).
 
 ## Key values / Valores principais

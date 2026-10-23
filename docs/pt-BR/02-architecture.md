@@ -9,7 +9,7 @@ flowchart TD
   IN["Entradas do motorista<br/>TrackedThrottle, TrackedBrake, Steering L/R<br/>Turbo, HandBrake, EngineStart/Stop"]
   NWK["NwkTrackedMovementComponent<br/>envia os comandos ao servidor,<br/>que os executa de novo (multiplayer)"]
   CTL["SCR_TrackedControllerComponent<br/>W = 80% de acelerador; turbo = 100%<br/>S parado engata a ré sozinho<br/>escolhe marcha, embreagem e trocas"]
-  REV["LEO_TrackedReverseComponent (script)<br/>contorno da ré quebrada:<br/>S parado empurra o casco para trás"]
+  REV["LEO_TrackedDriveComponent (script)<br/>direção pelo servidor + contorno da ré quebrada:<br/>S parado empurra o casco para trás"]
   subgraph VTS["VehicleTrackedSimulation"]
     subgraph SIM["Simulation Tracked"]
       ENG["Engine<br/>curva de torque, zero em RpmMax"] --> CLU["Clutch<br/>fator de 0 a 1"]
@@ -61,7 +61,7 @@ O motorista nunca fala direto com a simulação. O controlador lê as teclas e d
 4. **Forças.** As forças das rodas agem no `RigidBody`. O `CenterOfMass` do `RigidBody` é um deslocamento a partir do centro de massa do próprio modelo, não uma posição absoluta (engenharia reversa, depois medido).
 5. **Corrente de elos nativa.** Se os atributos da corrente estiverem definidos, a simulação move a corrente de cada lagarta como uma corda 2D: subpassos fixos de 0,0083 s, cada um com 25 passadas de restrições de comprimento do elo e de círculo das rodas, sob gravidade. Só a roda motriz a traciona, e nada a faz colidir com o chão. A cada frame, no `EOnPostFrame`, uma entidade de elo é colocada entre cada par de pontos vizinhos da corrente (engenharia reversa). Veja [Elos da esteira](15-track-links.md).
 6. **Scripts.** O `LEO_RunningGearComponent` lê a simulação por `TrackedControllerComponent.GetSimulation()` no `EOnFrame`. Ele move os ossos da suspensão e das rodas, gira a roda-guia, a roda motriz e os roletes, e deixa o `LEO_TrackChain` colocar os próprios elos num caminho em volta das rodas. Ele esconde os elos da corda. O `LEO_TrackBeltComponent` esconde as malhas estáticas das esteiras do casco quando já existem entidades de elo. Esses scripts são visuais e locais: não interferem na física. Veja [Rodas de apoio, roda-guia, roda motriz e roletes](14-running-gear.md).
-7. **Ré.** O `LEO_TrackedReverseComponent` é o único script que age na física. Enquanto o motorista dá ré, ele empurra o casco para trás com uma força.
+7. **Ré e multiplayer.** O `LEO_TrackedDriveComponent` é o único script que age na física. Enquanto o motorista dá ré, ele empurra o casco para trás com uma força; no multiplayer ele aplica os inputs do motorista na simulação, no servidor ([capítulo 18](18-multiplayer.md)). O Kiichi Tracked System troca este diagrama inteiro por um único componente de script ([capítulo 19](19-kiichi-tracked-system.md)).
 
 Em aberto: os scripts atualizam no `EOnFrame` e a corda nativa posiciona seus elos no `EOnPostFrame`. Um atraso de um frame entre os ossos movidos por script e a física é possível, mas não foi medido.
 
@@ -98,7 +98,7 @@ O Leopard lista cada lagarta como `Wheel_X01`..`Wheel_X07` (peças 0-6), `Idler_
 | `CarProcAnimComponent` `{5D6501223785D009}` | `components` do casco (herdado, vazio na base) | Deixe vazio em veículos de esteira: na 1.8.0.13 ele entrega aos ossos das rodas os sinais de outra roda |
 | `LEO_RunningGearComponent` (script, usa a classe `LEO_TrackChain`) | `components` do casco | Suspensão e giro dos ossos das rodas; a corrente de elos por script; esconde os elos da corda |
 | `LEO_TrackBeltComponent` (script) | `components` do casco | Esconde as malhas estáticas das esteiras quando existem pelo menos 2 entidades de elo; mantém as malhas se nenhum elo aparecer em 5 s |
-| `LEO_TrackedReverseComponent` (script) | `components` do casco | Contorno da ré; desliga o motor quando o banco do motorista fica vazio |
+| `LEO_TrackedDriveComponent` (script) | `components` do casco | Contorno da ré e direção pelo servidor; desliga o motor quando o banco do motorista fica vazio |
 | `LEO_TelemetryComponent` (script) | `components` do casco | Linhas `LEOTEL` e `LEOSUSP` no `console.log` para o ajuste |
 
 Os componentes da engine já vêm prontos no `TrackedVehicle_Base.et`. Falta preencher a simulação e os atributos da corrente de elos, como mostra o [passo a passo](04-from-scratch.md), e adicionar os scripts de [Scripts prontos](11-scripts.md). Os blocos do Leopard estão em [examples/leopard2a6](../../examples/leopard2a6/README.md).

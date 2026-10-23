@@ -334,7 +334,7 @@ To test, someone has to drive. The `PilotCompartmentSlot` already comes from `Tr
 
 ### 9. Make reverse drive (and install the scripts)
 
-Native reverse cannot drive in 1.8.0.13 ([bugs section](09-bugs.md)). `LEO_TrackedReverseComponent` pushes the hull backwards while the driver holds S, and with `m_bStopEngineOnExit` (default 1) it stops the engine when the driver seat becomes empty. Keep `ThrottleReverseTarget 1` on the controller.
+Native reverse cannot drive in 1.8.0.13 ([bugs section](09-bugs.md)). `LEO_TrackedDriveComponent` pushes the hull backwards while the driver holds S, and with `m_bStopEngineOnExit` (default 1) it stops the engine when the driver seat becomes empty. It also drives the whole vehicle from the server in multiplayer ([chapter 18](18-multiplayer.md)), so it needs `LEO_PlayerController.c`. Keep `ThrottleReverseTarget 1` on the controller. (Before 2026-10-20 this was `LEO_TrackedReverseComponent` v5; the measurements in this chapter were taken with it.)
 
 All the scripts of this guide install the same way ([Ready-made scripts](11-scripts.md)):
 
@@ -347,7 +347,7 @@ CarProcAnimComponent "{5D6501223785D009}" {
 }
 LEO_RunningGearComponent "{5292A83C2D6FC873}" {
 }
-LEO_TrackedReverseComponent "{7A1D4C9E2B6F3085}" {
+LEO_TrackedDriveComponent "{7A1D4C9E2B6F3086}" {
 }
 LEO_TelemetryComponent "{3C5E7A9B1D2F4608}" {
 }
@@ -357,7 +357,7 @@ LEO_TrackBeltComponent "{8E3A61C04F2D9B57}" {
 
 | Component | Step | Does |
 | --- | --- | --- |
-| `LEO_TrackedReverseComponent` | 9 | Reverse workaround; stops the engine when the driver leaves |
+| `LEO_TrackedDriveComponent` | 9 | Reverse workaround, server-side driving; stops the engine when the driver leaves |
 | `LEO_TelemetryComponent` | 6, 10, 13 | `LEOTEL` and `LEOSUSP` lines in the log |
 | `CarProcAnimComponent` (empty) | 11 | Keeps the inherited component without wheel parameters |
 | `LEO_RunningGearComponent` | 11, 12 | Suspension and spin of the part bones, scripted link chain |

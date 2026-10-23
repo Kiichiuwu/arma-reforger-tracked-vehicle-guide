@@ -334,7 +334,7 @@ Para testar, alguém precisa dirigir. O `PilotCompartmentSlot` já vem do `Track
 
 ### 9. Faça a ré andar (e instale os scripts)
 
-A ré nativa não anda na 1.8.0.13 ([seção de bugs](09-bugs.md)). O `LEO_TrackedReverseComponent` empurra o casco para trás enquanto o motorista segura S e, com `m_bStopEngineOnExit` (padrão 1), desliga o motor quando o banco do motorista fica vazio. Mantenha `ThrottleReverseTarget 1` no controlador.
+A ré nativa não anda na 1.8.0.13 ([seção de bugs](09-bugs.md)). O `LEO_TrackedDriveComponent` empurra o casco para trás enquanto o motorista segura S e, com `m_bStopEngineOnExit` (padrão 1), desliga o motor quando o banco do motorista fica vazio. Ele também dirige o veículo inteiro pelo servidor no multiplayer ([capítulo 18](18-multiplayer.md)), então precisa do `LEO_PlayerController.c`. Mantenha `ThrottleReverseTarget 1` no controlador. (Antes de 2026-10-20 era o `LEO_TrackedReverseComponent` v5; as medições deste capítulo foram feitas com ele.)
 
 Todos os scripts deste guia se instalam do mesmo jeito ([Scripts prontos](11-scripts.md)):
 
@@ -347,7 +347,7 @@ CarProcAnimComponent "{5D6501223785D009}" {
 }
 LEO_RunningGearComponent "{5292A83C2D6FC873}" {
 }
-LEO_TrackedReverseComponent "{7A1D4C9E2B6F3085}" {
+LEO_TrackedDriveComponent "{7A1D4C9E2B6F3086}" {
 }
 LEO_TelemetryComponent "{3C5E7A9B1D2F4608}" {
 }
@@ -357,7 +357,7 @@ LEO_TrackBeltComponent "{8E3A61C04F2D9B57}" {
 
 | Componente | Passo | Faz |
 | --- | --- | --- |
-| `LEO_TrackedReverseComponent` | 9 | Contorno da ré; desliga o motor quando o motorista sai |
+| `LEO_TrackedDriveComponent` | 9 | Contorno da ré, direção pelo servidor; desliga o motor quando o motorista sai |
 | `LEO_TelemetryComponent` | 6, 10, 13 | Linhas `LEOTEL` e `LEOSUSP` no log |
 | `CarProcAnimComponent` (vazio) | 11 | Mantém o componente herdado sem parâmetros de roda |
 | `LEO_RunningGearComponent` | 11, 12 | Suspensão e giro dos ossos das peças, corrente de elos por script |

@@ -34,7 +34,7 @@ As linhas vêm do trabalho com o Leopard no Workbench 1.8.0.13: a versão anteri
 | Velocidade máxima muito longe do cálculo | O cálculo usou o raio da roda de apoio | Refaça com o raio da roda motriz. No 2A6, velocidade ÷ velocidade angular da roda motriz deu 0,344 m contra `Sprocket.Radius` 0.34 (medido) |
 | Aceleração muito lenta | `Friction` alto, `Inertia` alta ou 1ª marcha longa | `Friction` \~10% do torque; encurte a 1ª |
 | W nunca chega a 100% | `ThrottleTurbo` 0.2 | Normal; use o turbo |
-| S parado: o motor sobe acima do `RpmMax` e nada acontece | Bug da ré nativa (no 2A6 o motor fica preso em 3766–3768 rpm) | [`LEO_TrackedReverseComponent`](11-scripts.md) |
+| S parado: o motor sobe acima do `RpmMax` e nada acontece | Bug da ré nativa (no 2A6 o motor fica preso em 3766–3768 rpm) | [`LEO_TrackedDriveComponent`](11-scripts.md) |
 | S parado: o tanque anda para a frente | `ThrottleReverseTarget` abaixo de 1 | `ThrottleReverseTarget 1` |
 | Na descida mantém velocidade de ré, mas no plano não anda | Bug da ré: só a gravidade o move | Script de ré |
 | O motor fica em cerca de 4500 rpm depois que o motorista sai | Sem motorista o controlador puxa o freio de mão e, parado, seleciona a ré; o bug da ré então prende o motor (observado no 2A6) | `m_bStopEngineOnExit 1` no script de ré (v4) |
@@ -43,7 +43,7 @@ As linhas vêm do trabalho com o Leopard no Workbench 1.8.0.13: a versão anteri
 | Acelerador a fundo, o motor fica em 700 rpm e o tanque mal se mexe | O tanque está travado ou encalhado numa pedra, com só 1–5 rodas de apoio por lado tocando o chão (medido) | Saia de ré. Comportamento esperado |
 | O tanque capota fácil em velocidade | Talvez o centro de massa alto: o `CenterOfMass` é um deslocamento somado ao ponto COM do próprio modelo. No 2A6, `0 1 0.46` põe o COM 2,17 m acima do chão, com um fator de estabilidade estática de cerca de 0,61 g (calculado, não provado) | Baixe o deslocamento Y (Y 0 daria cerca de 1,14 g). Ainda não testado ([capítulo 13](13-suspension.md)) |
 | O tanque parado escorrega devagar numa ladeira | Não resolvido. Um caso registrado: 0,3–0,4 km/h por 2,6 s numa rampa de \~6° com o freio em 6,0 | Em aberto |
-| Num servidor dedicado, virar parado não faz nada; o motor acelera e o casco faz rubberband | O move de rede descarta o freio de mão (`IsHandbrakeOn` é um stub), então o servidor nunca gira (medido) | `LEO_TrackedReverseComponent` v5 com `m_bMirrorHandbrake 1` ([capítulo 18](18-multiplayer.md)) |
+| Num servidor dedicado, virar parado não faz nada; o motor acelera e o casco faz rubberband | O move de rede descarta o freio de mão (`IsHandbrakeOn` é um stub), então o servidor nunca gira (medido) | `LEO_TrackedDriveComponent` (o próprio servidor aplica `SetBreak(x, true)`), ou o Kiichi Tracked System ([capítulo 18](18-multiplayer.md), [capítulo 19](19-kiichi-tracked-system.md)) |
 | A ré faz rubberband num servidor | O empurrão por script só rodava na máquina do motorista | v5 ([capítulo 18](18-multiplayer.md)) |
 | Como motorista num cliente: cabeça congelada, olhar lento parado, câmera pula ao acelerar e virar, teclas presas | Limitação do motor no caminho do cliente dono de esteira. Não é causada pelos scripts do mod (medido com tudo removido) | Nenhuma. Singleplayer, host e os outros assentos funcionam ([capítulo 18](18-multiplayer.md)) |
 

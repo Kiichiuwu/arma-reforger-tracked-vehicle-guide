@@ -51,7 +51,7 @@ What the controller did on the 2A6 (telemetry and debug panel, 2026-10-05 and 10
 | End of 1st gear | It holds 1st on the governor at 13.6 km/h (about 2935 rpm) until the upshift |
 | Downshifts | Medians 1318 rpm (8.4 km/h), 1758 rpm (21.4 km/h) and 1626 rpm (34.2 km/h) |
 | Pivot turn (full steering, nearly stopped) | Either clutch 0 with brake 6.0 and the engine on the governor at 2700 rpm (3409 N·m), or clutch 1 with the engine dragged down to 700 rpm (4601 N·m). The track running backward was usually faster, and the hull crept backward at 0.1–3.8 km/h (cause open) |
-| Driver leaves the seat | The controller pulls the handbrake and, at a standstill, selects reverse. The reverse bug then pins the engine far above `RpmMax`. [`LEO_TrackedReverseComponent`](../../scripts/LEO_TrackedReverseComponent.c) stops the engine when the seat is empty (`m_bStopEngineOnExit`) |
+| Driver leaves the seat | The controller pulls the handbrake and, at a standstill, selects reverse. The reverse bug then pins the engine far above `RpmMax`. [`LEO_TrackedReverseComponent`](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/blob/v2.1-leopard2a6-mp/scripts/LEO_TrackedReverseComponent.c) stops the engine when the seat is empty (`m_bStopEngineOnExit`) |
 
 ### The simulation (VehicleTrackedSimulation)
 

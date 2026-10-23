@@ -16,9 +16,6 @@ class LEO_TelemetryComponent : ScriptComponent
 	[Attribute("1", desc: "Also read gear/clutch/throttle/brake from the simulation obtained via the controller")]
 	protected bool m_bReadSimulation;
 
-	[Attribute("0.4186", desc: "Modelled road wheel centre height (bone v_wheel_l01 at rest) [m], for the absolute suspension travel in LEOSUSP")]
-	protected float m_fWheelRestHeight;
-
 	// simBrk 6.0 = handbrake (SetBreak(x, true)); gear 0 = R, 1 = N, 2.. = forward 1..n
 
 	protected float m_fTimer;
@@ -43,15 +40,165 @@ class LEO_TelemetryComponent : ScriptComponent
 		SetEventMask(owner, EntityEvent.FRAME);
 	}
 
+	protected bool m_bTurretLogged;
+
+	//------------------------------------------------------------------------------------------------
+	//! Logs where the turret entity really sits in hull space (expected from the model: 0 1.726 -0.301,
+	//! i.e. Blender v_turret_slot (0, -0.301, 1.726) converted to Enfusion x, z, y).
+	protected void LogTurretPlacement(IEntity owner)
+	{
+		IEntity child = owner.GetChildren();
+		while (child)
+		{
+			if (Turret.Cast(child))
+			{
+				vector local = owner.CoordToLocal(child.GetOrigin());
+				PrintFormat("LEOTEL turret local position %1 (expected 0 1.726 -0.301)", local);
+				// visual bounds of the turret model around its own origin, and the model root, to locate the forward offset
+				vector mins, maxs;
+				child.GetBounds(mins, maxs);
+				PrintFormat("LEOTEL turret bounds mins=%1 maxs=%2", mins, maxs);
+				LogBones(child, {"Scene_Root", "v_body", "v_gun_01", "v_muzzle", "gunner_idle", "gunner_getIn", "v_gunner_sight", "commander_idle", "v_commander_sight", "v_loader_hatch"});
+				LogBones(owner, {"v_turret_slot", "v_wheel_l01", "v_sprocket_l"});
+				// weapons and sub-turrets hang under the turret: where do they really sit (turret space, turret at 0 yaw)?
+				IEntity part = child.GetChildren();
+				while (part)
+				{
+					vector partLocal = child.CoordToLocal(part.GetOrigin());
+					part.GetBounds(mins, maxs);
+					PrintFormat("LEOTEL turret child %1 local=%2 bounds=%3 .. %4", part, partLocal, mins, maxs);
+					LogBonesIn(part, child, {"barrel_muzzle", "Scene_Root", "v_gun_01"});
+					part = part.GetSibling();
+				}
+
+				m_bTurretLogged = true;
+				return;
+			}
+
+			child = child.GetSibling();
+		}
+	}
+
+	protected ref array<IEntity> m_aLoggedOccupants = {};
+	protected float m_fCameraTimer;
+
+	//------------------------------------------------------------------------------------------------
+	//! Logs, whenever a seat changes occupant, where the character and its head sit in hull space, and every 2 s the
+	//! camera position while the local player is inside (to place seats, hatches and optics).
+	protected void LogOccupants(IEntity owner, float timeSlice)
+	{
+		BaseCompartmentManagerComponent manager = BaseCompartmentManagerComponent.Cast(owner.FindComponent(BaseCompartmentManagerComponent));
+		if (!manager)
+			return;
+
+		array<BaseCompartmentSlot> slots = {};
+		manager.GetCompartments(slots);
+		while (m_aLoggedOccupants.Count() < slots.Count())
+			m_aLoggedOccupants.Insert(null);
+
+		IEntity player = SCR_PlayerController.GetLocalControlledEntity();
+		bool playerInside;
+		foreach (int i, BaseCompartmentSlot slot : slots)
+		{
+			IEntity occupant = slot.GetOccupant();
+			if (occupant && occupant == player)
+				playerInside = true;
+
+			if (occupant == m_aLoggedOccupants[i])
+				continue;
+
+			m_aLoggedOccupants[i] = occupant;
+			if (!occupant)
+				continue;
+
+			vector pos = owner.CoordToLocal(occupant.GetOrigin());
+			vector head = pos;
+			Animation anim = occupant.GetAnimation();
+			if (anim)
+			{
+				TNodeId bone = anim.GetBoneIndex("Head");
+				vector mat[4];
+				if (bone != -1 && anim.GetBoneMatrix(bone, mat))
+					head = owner.CoordToLocal(occupant.CoordToParent(mat[3]));
+			}
+
+			PrintFormat("LEOTEL occupant slot=%1 (%2) pos=%3 head=%4", i, slot.GetOwner(), pos, head);
+		}
+
+		if (!playerInside)
+			return;
+
+		m_fCameraTimer += timeSlice;
+		if (m_fCameraTimer < 2)
+			return;
+
+		m_fCameraTimer = 0;
+		CameraBase camera = GetGame().GetCameraManager().CurrentCamera();
+		if (camera)
+			PrintFormat("LEOTEL camera %1 local=%2", camera, owner.CoordToLocal(camera.GetOrigin()));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Logs model-space bone matrices (X, Y, Z axes and position). Identity axes = <1,0,0> <0,1,0> <0,0,1>.
+	protected void LogBones(IEntity entity, array<string> names)
+	{
+		Animation anim = entity.GetAnimation();
+		if (!anim)
+		{
+			PrintFormat("LEOTEL bones: %1 has no animation", entity);
+			return;
+		}
+
+		foreach (string name : names)
+		{
+			TNodeId bone = anim.GetBoneIndex(name);
+			vector mat[4];
+			if (bone == -1 || !anim.GetBoneMatrix(bone, mat))
+			{
+				PrintFormat("LEOTEL bone %1 NOT FOUND", name);
+				continue;
+			}
+
+			PrintFormat("LEOTEL bone %1 X=%2 Y=%3 Z=%4 pos=%5", name, mat[0], mat[1], mat[2], mat[3]);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Logs where bones of a child entity (weapon, sub-turret) sit in the space of another entity (the turret).
+	//! Bones the model does not have are skipped silently.
+	protected void LogBonesIn(IEntity entity, IEntity space, array<string> names)
+	{
+		Animation anim = entity.GetAnimation();
+		if (!anim)
+			return;
+
+		vector world[4];
+		entity.GetWorldTransform(world);
+		foreach (string name : names)
+		{
+			TNodeId bone = anim.GetBoneIndex(name);
+			vector mat[4];
+			if (bone == -1 || !anim.GetBoneMatrix(bone, mat))
+				continue;
+
+			// bone matrices are in model space: model -> world -> turret space
+			PrintFormat("LEOTEL child bone %1 of %2 in turret space: %3", name, entity.GetPrefabData().GetPrefabName(), space.CoordToLocal(mat[3].Multiply4(world)));
+		}
+	}
+
+	[Attribute("0.4186", desc: "Modelled road wheel centre height (bone v_wheel_l01 at rest) [m], for the absolute suspension travel in LEOSUSP")]
+	protected float m_fWheelRestHeight;
+
 	protected float m_fSuspensionTimer;
 
 	//------------------------------------------------------------------------------------------------
-	//! Every 2 s with the engine on, per track (7 road wheels, bones v_wheel_<s>0X): how far each animated road wheel
-	//! bone (model space, includes the suspension translation) sits from where the simulation has that wheel (ground
-	//! contact + radius, hull space) in mm, the simulation's travel from the modelled height (mm, + = up), and the
-	//! spin of each road wheel and the sprocket about the axle (degrees).
-	//! With LEO_RunningGearComponent driving the bones, all diffs are ~0 and a track's road wheel spins are equal.
-	//! With CarProcAnimComponent (1.8.0.13) they were not: most bones got another wheel's signals.
+	//! Every 2 s with the engine on, per track: how far each animated road wheel bone (v_wheel_<s>0X, model space,
+	//! includes the CarProcAnim suspension translation) sits from where the simulation has that wheel (ground
+	//! contact + radius, hull space), in mm, the simulation's travel from the modelled height (mm, + = up), and the
+	//! spin of each road wheel and the sprocket about the axle.
+	//! With LEO_RunningGearComponent driving the bones all diffs are ~0 and a track's road wheel spins are equal.
+	//! (2026-10-05 runs 1 and 2: CarProcAnim, whatever the param order, gave bone v_wheel_l0X the signals of another
+	//! wheel - it looks a wheel up as 13 * track + part but reads a per-axle table: left 0, right 0, left 1, ...)
 	//! Only called with the engine on: the wheel getters are only read from a loaded simulation.
 	protected void LogSuspension(IEntity owner)
 	{
@@ -117,6 +264,11 @@ class LEO_TelemetryComponent : ScriptComponent
 			return;
 
 		m_fTimer = 0;
+		if (!m_bTurretLogged)
+			LogTurretPlacement(owner);
+
+		LogOccupants(owner, m_fInterval);
+
 		// hull attitude even with the engine off (pitch > 0 = nose up), to tune the centre of mass
 		vector ypr = owner.GetYawPitchRoll();
 		PrintFormat("LEOTEL pose pitch=%1 roll=%2", ypr[1], ypr[2]);

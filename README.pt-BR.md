@@ -20,13 +20,13 @@ de elos nativa e por que ela falha, um trem de rolamento e uma corrente de elos 
 funcionam, e a sobreposição de depuração nativa do veículo. Cada fato está marcado como medido,
 obtido por engenharia reversa, observado em vídeo ou não testado.
 
-**Testado em:** Arma Reforger / Enfusion Workbench **1.8.0.13** (outubro de 2026).
+**Testado em:** Arma Reforger / Enfusion Workbench **1.8.0.13** e **1.9.0.10 Experimental** (outubro de 2026).
 
 ## Mod no Workshop e download do modelo
 
 | | |
 | --- | --- |
-| **Mod no Workshop** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), versão 0.9.1. Um prefab base para você montar os seus próprios tanques. Multiplayer: veja o [capítulo 18](docs/pt-BR/18-multiplayer.md) |
+| **Mod no Workshop** | [Leopard 2A6 - Tracked Base](https://reforger.armaplatform.com/workshop/7E4ABBD41FEDAC42), Um prefab base para você montar os seus próprios tanques, em três variantes de direção: simulação vanilla (consertada) e Kiichi Tracked System para 1.8 e 1.9 ([capítulo 19](docs/pt-BR/19-kiichi-tracked-system.md)) |
 | **GUID do mod** | `7E4ABBD41FEDAC42`. Acrescente em `Dependencies` no seu `addon.gproj` para herdar os prefabs e os scripts do Leopard no seu mod |
 | **Licença do mod** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.pt_BR): use, modifique e republique à vontade, só mantenha os créditos |
 
@@ -48,15 +48,26 @@ para o próximo modder não ter que fazer engenharia reversa de novo.
 | Andar para a frente, marchas automáticas | ✅ Funciona. Velocidade máxima não medida de novo no 2A6: a teoria dá 72–75 km/h em 4ª com redução final 4,6. A versão anterior, do 2A7, mediu 74,3 km/h |
 | Virar andando | ✅ Funciona |
 | Girar no lugar | ✅ Funciona. No giro, a lagarta que anda para trás costuma girar mais rápido, então o casco recua devagar, até cerca de 4 km/h (observado em vídeo); causa em aberto |
-| Ré | ⚠️ A ré nativa está quebrada na 1.8.0.13 (no 2A6 o motor trava em 3766 rpm). Resolvida com um script pequeno ([por quê](docs/pt-BR/09-bugs.md)) |
+| Ré | ⚠️ A ré nativa está quebrada na 1.8.0.13 (no 2A6 o motor trava em 3766 rpm). Contornada com um empurrão por script ([por quê](docs/pt-BR/09-bugs.md)). ✅ Ré de verdade no Kiichi Tracked System |
 | Suspensão | ✅ Funciona de forma nativa. Use `MaxTravelDown ≈ m·g/(n·k)` para o casco ficar na altura do modelo ([capítulo 13](docs/pt-BR/13-suspension.md)) |
 | Roletes de retorno | ✅ Funcionam (`Type "Return Roller"`) |
 | Animação das rodas de apoio, roda-guia, roda motriz e roletes | ✅ Por script (`LEO_RunningGearComponent`). O `CarProcAnimComponent` ❌ entrega às rodas de esteira os sinais de outra roda na 1.8.0.13 ([capítulo 14](docs/pt-BR/14-running-gear.md)) |
 | Elos da esteira | Corda da corrente nativa ⚠️: ela pende (não colide com o chão), sai da roda motriz depois de capotar ou de uma explosão, e não tem API para reiniciar. Corrente por script ✅ (`LEO_TrackChain`): por construção não sai do lugar, mas ainda não foi testada capotando nem com mina ([capítulo 15](docs/pt-BR/15-track-links.md)) |
 | Sobreposição de depuração nativa do veículo | ✅ Rodou num teste de 5 minutos com uma corrente de elos presente. Sem corrente ela derrubou o Workbench em 02/10/2026, provavelmente pela falta da corrente ([capítulo 16](docs/pt-BR/16-debugging.md)) |
-| Multiplayer | ⚠️ Em parte. Servidor dedicado: giro no lugar / direção neutra e ré funcionam com o `LEO_TrackedReverseComponent` v5 (o motor descarta o freio de mão do move de rede; o script repõe). **O motorista num cliente** fica com a cabeça congelada, olhar lento e comandos presos: uma limitação do motor no caminho do cliente dono de esteira, sem correção por script. Outros assentos, hosts e singleplayer funcionam ([capítulo 18](docs/pt-BR/18-multiplayer.md)) |
+| Multiplayer | Vanilla: ✅ giro no lugar e ré em servidor dedicado com o `LEO_TrackedDriveComponent` (o servidor dirige a simulação nativa; a engine descarta o freio de mão do move de rede). A predição nativa do cliente em veículos de esteira está inacabada; a v6 nunca usa ela, mas uma pessoa dirigindo num cliente ainda não conferiu o resultado. Kiichi Tracked System: ✅ autoridade do servidor, medido com o motorista num cliente ([capítulo 18](docs/pt-BR/18-multiplayer.md), [capítulo 19](docs/pt-BR/19-kiichi-tracked-system.md)) |
+| 1.9.0.10 Experimental | ❌ Simulação nativa: força da suspensão invertida, cascos parados jogados longe. ✅ O Kiichi Tracked System funciona ([capítulo 20](docs/pt-BR/20-experimental-1.9.md)) |
 
 ## O que há de novo nesta edição
+
+- **Kiichi Tracked System (23/10/2026).** Uma simulação de esteira escrita inteira em script
+  (`LEO_TrackSimComponent`): suspensão, motor, câmbio, tração por esteira, direção por embreagem e freio e
+  ré de verdade num corpo rígido comum, com autoridade do servidor. O mesmo código na 1.8 e na 1.9
+  ([capítulo 19](docs/pt-BR/19-kiichi-tracked-system.md)).
+- **Vanilla dirigida pelo servidor (v6).** O `LEO_TrackedDriveComponent` substitui o
+  `LEO_TrackedReverseComponent`: o servidor fica com o veículo e dirige a simulação nativa com os inputs do
+  motorista por RPC ([capítulo 18](docs/pt-BR/18-multiplayer.md)).
+- **1.9.0.10 Experimental.** O que quebra na simulação nativa lá ([capítulo 20](docs/pt-BR/20-experimental-1.9.md)).
+- **Três prefabs** no mod do Workshop, lado a lado: vanilla, Kiichi Tracked System 1.8 e 1.9.
 
 - **Multiplayer (17/10/2026).** Um capítulo novo, [Multiplayer](docs/pt-BR/18-multiplayer.md): como o
   veículo de esteira é replicado, por que um servidor dedicado nunca gira no lugar (o freio de mão é
@@ -109,12 +120,14 @@ para o próximo modder não ter que fazer engenharia reversa de novo.
 | 10 | [Ajuste com dados reais](docs/pt-BR/10-tuning.md) |
 | 11 | [Scripts prontos](docs/pt-BR/11-scripts.md) |
 | 12 | [Solução de problemas](docs/pt-BR/12-troubleshooting.md) |
-| 13 | [Suspensão e altura do casco](docs/pt-BR/13-suspension.md) *(novo)* |
-| 14 | [Rodas de apoio, roda-guia, roda motriz e roletes](docs/pt-BR/14-running-gear.md) *(novo)* |
-| 15 | [Elos da esteira: a corda nativa e a corrente por script](docs/pt-BR/15-track-links.md) *(novo)* |
-| 16 | [Diagnóstico do veículo e telemetria](docs/pt-BR/16-debugging.md) *(novo)* |
+| 13 | [Suspensão e altura do casco](docs/pt-BR/13-suspension.md) |
+| 14 | [Rodas de apoio, roda-guia, roda motriz e roletes](docs/pt-BR/14-running-gear.md) |
+| 15 | [Elos da esteira: a corda nativa e a corrente por script](docs/pt-BR/15-track-links.md) |
+| 16 | [Diagnóstico do veículo e telemetria](docs/pt-BR/16-debugging.md) |
 | 17 | [Apêndice](docs/pt-BR/17-appendix.md) |
-| 18 | [Multiplayer](docs/pt-BR/18-multiplayer.md) *(novo)* |
+| 18 | [Multiplayer](docs/pt-BR/18-multiplayer.md) |
+| 19 | [Kiichi Tracked System](docs/pt-BR/19-kiichi-tracked-system.md) *(novo)* |
+| 20 | [1.9.0.10 Experimental](docs/pt-BR/20-experimental-1.9.md) *(novo)* |
 
 ## Início rápido
 
@@ -127,8 +140,10 @@ para o próximo modder não ter que fazer engenharia reversa de novo.
 3. Dimensione a suspensão para o casco ficar na altura do modelo: `MaxTravelDown ≈ m·g/(n·k)`,
    com `n` rodas de apoio e `k` = `SpringRate` × 1000 N/m. Leopard: 62300 × 9,81 / (14 × 450000)
    = 0,097 m, então `MaxTravelDown 0.10` ([capítulo 13](docs/pt-BR/13-suspension.md)).
-4. Adicione o [`LEO_TrackedReverseComponent`](scripts/LEO_TrackedReverseComponent.c) para a ré
-   andar de verdade, e defina `ThrottleReverseTarget 1` no controlador.
+4. Adicione o [`LEO_TrackedDriveComponent`](scripts/LEO_TrackedDriveComponent.c) (com o
+   [`LEO_PlayerController.c`](scripts/LEO_PlayerController.c)) para a ré andar e o multiplayer funcionar,
+   e defina `ThrottleReverseTarget 1` no controlador. Ou pule os passos 2–4 e use o
+   [Kiichi Tracked System](docs/pt-BR/19-kiichi-tracked-system.md) no lugar da simulação nativa.
 5. Para rodas e elos em movimento: monte os ossos das rodas, deixe o `CarProcAnimComponent` vazio e
    adicione o [`LEO_RunningGearComponent`](scripts/LEO_RunningGearComponent.c) (ele precisa do
    [`LEO_TrackChain.c`](scripts/LEO_TrackChain.c)) e o
@@ -146,17 +161,19 @@ para o próximo modder não ter que fazer engenharia reversa de novo.
 ## Organização do repositório
 
 ```
-docs/en/              Capítulos em inglês (00-17)
+docs/en/              Capítulos em inglês (00-20)
 docs/pt-BR/           Capítulos em português (mesmos nomes de arquivo)
 docs/images/          GIFs e fotos dos vídeos de teste do Leopard 2A6
 scripts/              Componentes em Enforce Script (veja a tabela abaixo)
 tools/                trackpositions.py: gerador offline de TrackPositions
-examples/leopard2a6/  Blocos de prefab do Leopard 2A6: simulação com corrente de elos, componentes do casco
+examples/leopard2a6/  Blocos de prefab do Leopard 2A6: simulação com corrente de elos, componentes do casco, os três prefabs
 ```
 
 | Arquivo | O que faz |
 | --- | --- |
-| [`scripts/LEO_TrackedReverseComponent.c`](scripts/LEO_TrackedReverseComponent.c) | Ré por script (v4); desliga o motor quando o banco do motorista fica vazio (`m_bStopEngineOnExit`) |
+| [`scripts/LEO_TrackSimComponent.c`](scripts/LEO_TrackSimComponent.c) | Kiichi Tracked System: toda a simulação de esteira em script, com autoridade do servidor |
+| [`scripts/LEO_TrackedDriveComponent.c`](scripts/LEO_TrackedDriveComponent.c) | Simulação vanilla dirigida pelo servidor: inputs por RPC, freio de mão de verdade, troca de marcha própria, ré por script |
+| [`scripts/LEO_PlayerController.c`](scripts/LEO_PlayerController.c) | Leva os inputs do motorista ao servidor (os dois componentes de direção precisam dele) |
 | [`scripts/LEO_TelemetryComponent.c`](scripts/LEO_TelemetryComponent.c) | Linhas `LEOTEL` da transmissão e `LEOSUSP` da suspensão no `console.log` |
 | [`scripts/LEO_RunningGearComponent.c`](scripts/LEO_RunningGearComponent.c) | Curso e giro das rodas de apoio, giro da roda-guia, da roda motriz e dos roletes; cuida das correntes de elos por script e esconde os elos da corda nativa |
 | [`scripts/LEO_TrackChain.c`](scripts/LEO_TrackChain.c) | A corrente de elos por script de uma lagarta (classe usada pelo `LEO_RunningGearComponent`) |

@@ -1,23 +1,24 @@
 > 🇧🇷 Português · [🇬🇧 English](../en/18-multiplayer.md)
 
-[← Apêndice](17-appendix.md) · [Índice](../../README.pt-BR.md)
+[← Apêndice](17-appendix.md) · [Índice](../../README.pt-BR.md) · [Kiichi Tracked System →](19-kiichi-tracked-system.md)
 
 # Multiplayer
 
 Este capítulo trata do que acontece com um veículo de esteira nativo quando um jogador o dirige de um cliente: como o motor o replica, o bug que impede o giro no lugar e a direção neutra nos servidores, a correção nos scripts do Leopard e a limitação do motor que sobra. Também explica como testar multiplayer num PC só com o Peer Tool do Workbench.
 
-Tudo foi testado em 16 e 17/10/2026 com o Workbench 1.8.0.13 (Workbench como servidor mais um cliente do Peer Tool), depois de um primeiro relato de um testador num servidor dedicado. Cada fato diz como é conhecido: **medido** (logs), **engenharia reversa** (`ArmaReforgerWorkbenchSteamDiag.exe` 1.8.0.13, endereços no [Apêndice](17-appendix.md)), **observado** ou **não testado**.
+A primeira parte foi testada em 16 e 17/10/2026 com o Workbench 1.8.0.13 (Workbench como servidor mais um cliente do Peer Tool), depois de um primeiro relato de um testador num servidor dedicado. Cada fato diz como é conhecido: **medido** (logs), **engenharia reversa** (`ArmaReforgerWorkbenchSteamDiag.exe` 1.8.0.13, endereços no [Apêndice](17-appendix.md)), **observado** ou **não testado**. A seção [v6: o servidor dirige](#v6-o-servidor-dirige-leo_trackeddrivecomponent) e as regras de replicação depois dela foram medidas em 20 e 21/10/2026 com rodadas automáticas do jogo, servidor dedicado + cliente (sem Workbench).
 
 ### Em resumo
 
 | Situação | Situação |
 | --- | --- |
 | Singleplayer, ou um host que dirige o próprio tanque | ✅ Funciona como no resto do guia |
-| Servidor dedicado, giro no lugar / direção neutra parado | ❌ Nativo: o servidor nunca gira, o cliente faz rubberband. ✅ Corrigido pelo `LEO_TrackedReverseComponent` v5 (o cliente manda o freio de mão, o servidor repõe) |
-| Servidor dedicado, ré | ❌ Nativo: o empurrão por script só rodava na máquina do motorista. ✅ A v5 roda no servidor também |
+| Servidor dedicado, giro no lugar / direção neutra parado | ❌ Nativo: o servidor nunca gira, o cliente faz rubberband. ✅ Corrigido pelo `LEO_TrackedReverseComponent` v5 (o cliente manda o freio de mão, o servidor repõe) e, desde a v6, pelo `LEO_TrackedDriveComponent` (o próprio servidor aplica o freio de mão) |
+| Servidor dedicado, ré | ❌ Nativo: o empurrão por script só rodava na máquina do motorista. ✅ A v5 roda no servidor também; a v6 roda só no servidor |
 | Servidor dedicado, andar e virar em velocidade | ✅ Funciona de forma nativa |
-| Servidor dedicado, o **motorista** num cliente | ⚠️ Limitação do motor: a cabeça do motorista não anima, o olhar fica lento parado, a câmera pula ao acelerar e virar, e os comandos podem ficar presos. Não dá para corrigir por script (veja abaixo) |
+| Servidor dedicado, o **motorista** num cliente | ⚠️ Limitação do motor: a cabeça do motorista não anima, o olhar fica lento parado, a câmera pula ao acelerar e virar, e os comandos podem ficar presos. Não dá para corrigir dentro do caminho nativo do cliente. A v6 mantém o veículo no servidor, então esse caminho nunca roda; se isso tira os sintomas ainda não foi conferido por uma pessoa (veja abaixo) |
 | Outros assentos num cliente (torre) | ✅ Normais |
+| Kiichi Tracked System (simulação por script, sem a nativa) | ✅ Autoridade do servidor por construção; medido com o motorista num cliente ([capítulo 19](19-kiichi-tracked-system.md)) |
 | Trem de rolamento e corrente por script nos clientes | ✅ Animam no cliente do motorista e nos outros clientes (medido no peer: linhas `LEOGEAR` e `LEOTRACK`, elos visíveis). Nada roda num servidor dedicado, de propósito |
 
 ### Como um veículo de esteira é replicado
@@ -55,7 +56,7 @@ Uma força aplicada por script só existe onde foi aplicada. A v4 empurrava só 
 
 ### A correção: LEO\_TrackedReverseComponent v5
 
-O [`scripts/LEO_TrackedReverseComponent.c`](../../scripts/LEO_TrackedReverseComponent.c) agora tem três papéis:
+O [`scripts/LEO_TrackedReverseComponent.c`](https://github.com/Kiichiuwu/arma-reforger-tracked-vehicle-guide/blob/v2.1-leopard2a6-mp/scripts/LEO_TrackedReverseComponent.c) agora tem três papéis:
 
 | Máquina | O que faz |
 | --- | --- |
@@ -92,7 +93,37 @@ O que foi tentado, cada item numa rodada separada, sem mudança nos sintomas:
 
 De onde vem (engenharia reversa, em parte): os produtores de move do cliente dono do `NwkCarMovementComponent` (`0x141054b50`, 36 chamadas) e do `NwkTrackedMovementComponent` (`0x141075190`, 31 chamadas) quase não têm nada em comum, e o 1.8.0.13 não traz nenhum veículo de esteira que tivesse exercitado o de esteira. Os ticks dos controladores (`0x140fd8760` carro, `0x140fe60f0` esteira) e os leitores de entrada são estruturalmente idênticos, e os construtores dos componentes de rede escrevem os mesmos padrões. A peça exata que falta não foi achada. Foi relatado à Bohemia Interactive com esses endereços.
 
-Consequência prática: veículos de esteira nativos funcionam para singleplayer, hosts e todos os assentos menos o do motorista em servidores dedicados. Para um veículo que precise ser dirigido de clientes hoje, a simulação de rodas (como os mods de tanque publicados usam) é o único caminho.
+Consequência prática (17/10/2026): veículos de esteira nativos funcionavam para singleplayer, hosts e todos os assentos menos o do motorista em servidores dedicados. Vieram duas respostas depois: a v6 abaixo, que mantém a simulação nativa mas nunca deixa o cliente do motorista predizê-la, e o Kiichi Tracked System ([capítulo 19](19-kiichi-tracked-system.md)), que não usa a simulação nativa.
+
+### v6: o servidor dirige (LEO\_TrackedDriveComponent)
+
+O experimento 6 acima já devolvia o veículo ao servidor, e o controlador nativo continuava brigando com os inputs do RPC. A v6 acrescenta o que faltava e substitui o `LEO_TrackedReverseComponent` ([`scripts/LEO_TrackedDriveComponent.c`](../../scripts/LEO_TrackedDriveComponent.c), atributos no [capítulo 11](11-scripts.md)):
+
+| Problema (medido) | v6 |
+| --- | --- |
+| A engine entrega o veículo ao cliente do motorista quando ele senta, e o cliente passa a predizê-lo pelo caminho inacabado | O servidor toma de volta, uma vez e de forma assíncrona: `RplComponent.GiveExt(RplIdentity.Local(), false)`. O cliente do motorista vira um proxy comum, como um passageiro |
+| O servidor só aceita RPCs `RplRcver.Server` do **dono** do item replicado. Um veículo de posse do servidor não tem dono na máquina do motorista | Os inputs vão pelo `SCR_PlayerController` do próprio motorista (modificado, `LEO_PlayerController.c`), com o `RplId` do veículo; o servidor confere se quem mandou é o motorista. Lidos a cada quadro, enviados a 20 Hz e a cada mudança (canal não confiável); ligar/desligar o motor em canal confiável |
+| Com um piloto sentado, o `TrackedControllerComponent` nativo reescreve os inputs a cada passo (embreagem aberta, acelerador zerado), mesmo com `LockPilotControls(true)` | `SetPilotCompartmentSlot(null)` enquanto o motorista está sentado; volta quando ele sai. A simulação passa a andar só com os inputs do script |
+| O câmbio automático e a embreagem nativos só funcionam num veículo dirigido pelo dono | Troca própria pelo `EngineGetRPM` (sobe a 2500, desce a 1100; marcha 0 = R, 1 = N, 2 em diante à frente) e `SetClutch` |
+| Sem motorista nativo o casco dorme depois de uns 2 s e o `EOnSimulate` para | `SetActive(ALWAYS_ACTIVE)` enquanto dirige |
+| O freio de mão | `SetBreak(brake, true)` no servidor: a flag real de freio de mão, então o giro funciona num servidor dedicado |
+| Um veículo replicado **não** recebe eventos de entidade nos clientes (frame, post-frame, fixed, visible; qualquer máscara, com ou sem `ACTIVE`) | Velocidade das esteiras e altura de contato das rodas replicadas como `RplProp`; os clientes animam o trem de rolamento a partir de um tick da call queue (`GetGame().GetCallqueue().CallLater(fn, 0, true)`) |
+
+Um veículo de posse do servidor **é** movido nos clientes pela replicação nativa de movimento (`IsInterpolating` verdadeiro), então a v6 não replica a transformação do casco por conta própria.
+
+**Medido** (1.8.0.13, `ArmaReforgerSteamDiag.exe -server` + `-client` num PC, o jogador do cliente sentado como motorista por um componente de teste, inputs de teste mandados pelo caminho real do RPC): 0 a 40 km/h em 8 s, marchas 2 a 5, direção total em velocidade a 0,8–1,0 rad/s, o cliente acompanha o casco, sem crash. Com o próprio host sentado: o motor liga ao acelerar e anda igual.
+
+**Ainda não conferido:** uma pessoa dirigindo num cliente (cabeça, olhar, câmera, sensação dos comandos) e latência real. A direção nativa em velocidade com o acelerador solto contra-gira a lagarta de dentro (guinada de uns 0,8–1,0 rad/s, o casco pode andar para trás): comportamento do diferencial nativo, não do script.
+
+### Regras de replicação para veículos por script (medidas)
+
+Valem para qualquer veículo dirigido por script, com ou sem simulação nativa:
+
+1. O servidor só aceita RPCs `RplRcver.Server` do dono do item replicado. Mande os inputs de um motorista no cliente pelo controlador de jogador dele.
+2. Ao sentar no banco do piloto, a engine entrega o veículo ao cliente do motorista. Um cliente que é dono de um veículo com a simulação nativa inerte (sem bloco de simulação) **trava** no passo da física (access violation). Tome de volta com `GiveExt(RplIdentity.Local(), false)`.
+3. Um veículo sem simulação nativa funcionando não recebe replicação de transformação do `NwkTrackedMovementComponent`. Replique posição, ângulos e velocidade por conta própria e faça dead reckoning nos clientes.
+4. O código de cliente de um veículo replicado precisa rodar pela call queue, não por eventos de entidade.
+5. Testes: `ArmaReforgerSteamDiag.exe -client` na mesma máquina e conta de um `-server` Diag é derrubado ("same identity"), a não ser que os dois rodem com `-noConnMatching`. O `-server` Diag é um servidor com host local; o jogador dele é o PlayerId 1.
 
 ### Testando multiplayer num PC só: o Peer Tool
 
@@ -112,8 +143,9 @@ Entradas do diagnóstico que ajudam (as duas janelas têm o menu): *Vehicles* �
 
 - Que passo nativo do caminho do cliente dono mantém o personagem do motorista vivo nos carros e falta nos veículos de esteira?
 - Quais são as unidades da tolerância de ângulo (0,003), e que valores folgados mantêm giro e ré suaves com latência real?
-- O espelho do freio de mão no servidor aguenta 100 ms ou mais de latência, ou a correção em cada transição fica visível?
+- O espelho do freio de mão no servidor aguenta 100 ms ou mais de latência, ou a correção em cada transição fica visível? (Só a v5; a v6 não tem predição no cliente para corrigir.)
+- Com a v6, o motorista num cliente fica normal quando uma pessoa dirige (cabeça, olhar, câmera, comandos)?
 
 ---
 
-[← Apêndice](17-appendix.md) · [Índice](../../README.pt-BR.md)
+[← Apêndice](17-appendix.md) · [Índice](../../README.pt-BR.md) · [Kiichi Tracked System →](19-kiichi-tracked-system.md)
